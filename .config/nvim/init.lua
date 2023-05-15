@@ -1,1 +1,1 @@
-require('loadvimrc');
+require('athesto');

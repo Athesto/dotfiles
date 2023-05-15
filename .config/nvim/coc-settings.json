@@ -1,1 +1,18 @@
-{}
+{
+  "diagnostic": {
+    "virtualText": false,
+    "virtualTextPrefix": "<[",
+    "messageTarget": "float",
+    "virtualTextCurrentLineOnly": true,
+    "checkCurrentLine": true
+  },
+  "typescript.suggest.autoImports": true,
+  "Lua": {
+    "diagnostics":{
+      "globals":["vim"]
+    }
+  },
+  "solargraph":{
+    "definitions": true
+  }
+}
