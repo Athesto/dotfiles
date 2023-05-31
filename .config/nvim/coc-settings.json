@@ -1,4 +1,7 @@
 {
+  "[typescript][markdown][javascript][typescriptreact][html][css][json][scss]": {
+    "coc.preferences.formatOnSave": true
+  },
   "diagnostic": {
     "virtualText": false,
     "virtualTextPrefix": "<[",
@@ -8,11 +11,11 @@
   },
   "typescript.suggest.autoImports": true,
   "Lua": {
-    "diagnostics":{
-      "globals":["vim"]
+    "diagnostics": {
+      "globals": ["vim"]
     }
   },
-  "solargraph":{
+  "solargraph": {
     "definitions": true
   }
 }

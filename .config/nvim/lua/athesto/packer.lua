@@ -18,5 +18,6 @@ return require('packer').startup(function(use)
     use { 'ThePrimeagen/harpoon' }
     use { 'diepm/vim-rest-console' }
 
+    use { 'NvChad/nvim-colorizer.lua' }
 end)
 

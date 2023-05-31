@@ -8,15 +8,15 @@ export FZF_TMUX_OPTS='-p80%,60%'
 
 
 if [ -n "$ZSH_VERSION" ]; then
-	bindkey '^[h' backward-kill-word
-	bindkey '^U' backward-kill-line
-	bindkey '^P' up-line-or-history  # restore ctrp as up
-	bindkey '^N' down-line-or-history
-	function help-bash(){bash -c "help \"$1\"";};
+  bindkey '^[h' backward-kill-word
+  bindkey '^U' backward-kill-line
+  bindkey '^P' up-line-or-history  # restore ctrp as up
+  bindkey '^N' down-line-or-history
+  function help-bash(){bash -c "help \"$1\"";};
 elif [ -n "$BASH_VERSION" ]; then
-	stty -ixon
-	bind '"\eh": backward-kill-word'
-	bind -r "\C-s"
+  stty -ixon
+  bind '"\eh": backward-kill-word'
+  bind -r "\C-s"
 fi
 
 source lscolors.sh  # https://github.com/trapd00r/LS_COLORS
