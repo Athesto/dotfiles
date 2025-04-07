@@ -1,0 +1,126 @@
+# load order
+export LOADED_HOME_ZSH_ALIASED=1
+#load /etc/zprofile
+#load ~/.zprofile
+#load /etc/zshrc
+#load ~/.zshrc
+#load ~/.zsh_aliases
+
+echo "load ~/.zsh_aliases" 1> /dev/null
+
+export EDITOR='/usr/bin/vim'
+export FZF_DEFAULT_OPTS='--bind ctrl-j:accept'
+export FZF_ALT_C_COMMAND='fd --type d | cut -b3-'
+export FZF_DEFAULT_COMMAND='fd --type f'
+export AWS_PROFILE="aws2024_terraform"
+export FZF_TMUX_OPTS='-p80%,60%'
+export PYTHONSTARTUP=$HOME/.pythonrc
+export PYTHONBREAKPOINT="ipdb.set_trace"
+
+# export vscode path
+export PATH="$PATH:$HOME/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+
+# fzf-popular-dir - list your most popular directories
+function fzf-popular-dir(){
+  local FZF_POPULAR_CD="$(\
+    history |\
+    cut -b8- |\
+    grep '^builtin cd' |\
+    sort |\
+    uniq -c |\
+    grep -v '^   1' |\
+    sort -r |\
+    fzf --layout=reverse\
+  )";
+  local FZF_POPULAR_DIR=$(echo "$FZF_POPULAR_CD" | awk '{print $5}')
+  cd $FZF_POPULAR_DIR
+  unset FZF_POPULAR_CD
+  unset FZF_POPULAR_DIR
+}
+
+function fzf-last-20-dirs(){
+  local FZF_LAST_20="$(\
+    history |\
+    grep -E "^.....  builtin cd" |\
+    tail -r -20 |\
+    cut -b22- |\
+    fzf --reverse
+  )";
+  cd $FZF_LAST_20
+  unset FZF_LAST_20
+}
+
+# search last code in the directory
+function lastcode {
+	local LAST_CODE=$(ls | cut -b-3 | grep -E '\d{2}-' | cut -b-2 | sort | tail -1);
+  echo $LAST_CODE
+}
+
+function mkdircode {
+  local LAST_CODE="$(lastcode)"
+  local NEXT_CODE="$((LAST_CODE + 1))"
+  printf -v NAME "%02d-%s" "$NEXT_CODE" "$1"
+  mkdir $NAME
+  echo $NAME
+}
+
+function touchcode {
+  local LAST_CODE="$(lastcode)"
+  local NEXT_CODE="$((LAST_CODE + 1))"
+  printf -v NAME "%02d-%s" "$NEXT_CODE" "$1"
+  touch $NAME
+  echo $NAME
+}
+
+function takecode {
+  local LAST_CODE="$(lastcode)"
+  local NEXT_CODE="$((LAST_CODE + 1))"
+  printf -v NAME "%02d-%s" "$NEXT_CODE" "$1"
+  mkdir $NAME
+  cd $NAME
+}
+
+function lscode {
+  ls -rF | grep -E '^\d+-' | column
+}
+
+function watch() {
+  for _ in {1..99}; do 
+    clear; 
+    bash -c "$*";
+    sleep 5;
+  done; 
+  echo
+}
+
+function clear-watchfiles() {
+  watchfiles "bash -c \"clear; $1\"" "${@:2}"
+}
+
+if [ -n "$ZSH_VERSION" ]; then
+  bindkey '^[h' backward-kill-word
+  bindkey '^U' backward-kill-line
+  bindkey '^P' up-line-or-history  # restore ctrp as up
+  bindkey '^N' down-line-or-history
+  function help-bash(){bash -c "help \"$1\"";};
+elif [ -n "$BASH_VERSION" ]; then
+  stty -ixon
+  bind '"\eh": backward-kill-word'
+  bind -r "\C-s"
+fi
+
+source lscolors.sh  # https://github.com/trapd00r/LS_COLORS
+source ~/.secrets
+
+alias docker-desktop="open -a Docker"
+alias ghb='gh browse'
+alias la="exa --group-directories-first -s Extension -a"
+alias ll="exa --group-directories-first -s Extension -l"
+alias ls="exa --group-directories-first -s Extension"
+alias lsn="exa --sort name"
+alias npkill="npkill -x . -E 'Library, Applications' --sort size"
+alias denor="deno run"
+alias passgen="openssl rand -base64 32 | tee >(clipcopy)"
+
+nvm use default 1>/dev/null  # make tmux read the default nvm's node
+export END_LOADED_HOME_ZSH_ALIASES=1
