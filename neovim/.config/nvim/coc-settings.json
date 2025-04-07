@@ -1,5 +1,8 @@
 {
-  "[typescript][markdown][javascript][typescriptreact][html][css][json][scss]": {
+  "[typescript][markdown][javascript][typescriptreact][html][css][scss]": {
+    "coc.preferences.formatOnSave": false
+  },
+  "[json]": {
     "coc.preferences.formatOnSave": true
   },
   "diagnostic": {
@@ -14,8 +17,5 @@
     "diagnostics": {
       "globals": ["vim"]
     }
-  },
-  "solargraph": {
-    "definitions": true
   }
 }

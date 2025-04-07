@@ -19,5 +19,16 @@ return require('packer').startup(function(use)
     use { 'diepm/vim-rest-console' }
 
     use { 'NvChad/nvim-colorizer.lua' }
+    use { 'karb94/neoscroll.nvim'};
+    use { 'akinsho/bufferline.nvim', tag = "*", requires = 'nvim-tree/nvim-web-devicons'}
+    use { 'edluffy/hologram.nvim'}
+    use { 'ibhagwan/fzf-lua',
+        -- optional for icon support
+        requires = { 'nvim-tree/nvim-web-devicons' }
+    }
+    use {'Exafunction/codeium.vim' }
+
+
+
 end)
 

@@ -9,6 +9,11 @@ require('athesto.plugins-config.vim-treesitter');
 require('athesto.plugins-config.harpoon');
 require('athesto.plugins-config.rest-console');
 require('athesto.plugins-config.nvim-colorizer');
+--require('athesto.plugins-config.neoscroll');
+require('athesto.plugins-config.bufferline');
+--require('athesto.plugins-config.hologram');
+require('athesto.plugins-config.fzf-lua');
+require('athesto.plugins-config.codeium');
 
 -- Extra
 require('athesto.custom-functions');
