@@ -1,0 +1,40 @@
+# -- my customizations -------------------------------------------------------
+# this section comes after the optional customization
+# https://github.com/gpakosz/.tmux
+# https://cheatography.com/gamejia90/cheat-sheets/tmux/
+
+
+#unbind C-a                             # disable default <prefix>
+#unbind C-b                             # disable default <prefix>
+unbind C-c                              # disable create sessions
+
+#set -g prefix C-a                      # <prefix> as C-a
+set -g prefix C-s                       # <prefix> as C-a
+set -g prefix2 C-s                      # <prefix> as C-a
+
+#bind a send-prefix                     # <prefix>a as normal C-a
+#bind C-a send-prefix                   # <prefix>C-a as normal C-a
+bind s send-prefix
+bind C-s send-prefix
+
+
+
+bind S new-session                      # new session
+bind v copy-mode                        # copy-mode as vim
+bind -n C-l send-keys C-l               # C-l only clear screen
+
+#set -g status-position top
+set -g display-panes-time 2000          # increase pane-time
+set -g mode-keys vi                     # enable vi copy-mode
+set -g mouse
+set -g status-keys emacs                # enable emacs for tmux command-line
+set -sg repeat-time 0                   # no timeout for repeat commands
+
+#tmux_conf_theme_mouse=""               # U+1f5b1 mouse icon for mouse mode
+tmux_conf_theme_mouse="↖"               # U+2196 mouse icon for mouse mode
+tmux_conf_copy_to_os_clipboard=true     # copy tmux to os clipboard
+
+tmux_conf_theme_window_status_current_format='#I #W#{?window_zoomed_flag,🔍,}'
+
+set -g window-status-format '#{pane_tty}'
+tmux_conf_theme_status_right="#{pane_tty}${tmux_conf_theme_status_right}"
