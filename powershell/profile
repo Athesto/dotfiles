@@ -1,4 +1,4 @@
-﻿Set-PSReadLineOption -EditMode Emacs
+Set-PSReadLineOption -EditMode Emacs
 Set-PSReadLineKeyHandler -Chord ctrl+j -Function AcceptLine
 Set-PSReadLineKeyHandler -Chord ctrl+i -Function TabCompleteNext
 
