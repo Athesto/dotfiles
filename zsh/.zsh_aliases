@@ -16,6 +16,7 @@ export AWS_PROFILE="aws2024_terraform"
 export FZF_TMUX_OPTS='-p80%,60%'
 export PYTHONSTARTUP=$HOME/.pythonrc
 export PYTHONBREAKPOINT="ipdb.set_trace"
+export PYTHONDONTWRITEBYTECODE=1
 
 # export vscode path
 export PATH="$PATH:$HOME/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
