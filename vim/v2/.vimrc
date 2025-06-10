@@ -27,6 +27,8 @@ function! Settings()
     set t_ut=                                         "patch, fix render background when tmux has -256color
     set t_Co=256                                      "patch, set explicit 256 colors for term w/o -256color
     set t_vb=""                                       "no visual bell (flash) in windows
+    set foldlevelstart=99                             "Folds search about :help usr_28
+    set number                                        "show line number
     try
         colorscheme iceberg | set background=dark     "Iceberg dark
     catch
