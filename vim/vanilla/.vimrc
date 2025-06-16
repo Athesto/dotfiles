@@ -17,6 +17,7 @@ function! Settings()
     syntax on                                         "Coloring syntax and highlighting
     set undodir=~/.vim/undodir                        "Undo directory for undo buffer
     set backupdir=~/.vim/backupdir                    "backupdir
+    set directory=~/.vim/swapfiles//                  "swap directory
     set backup
     set undofile                                      "save undo buffer in (undodir)ectory
     set t_ut=                                         "patch, fix render background when tmux has -256color
@@ -32,6 +33,7 @@ endfunction
 function! VimPlugInstall()
     silent !mkdir -p $HOME/.vim/undodir
     silent !mkdir -p $HOME/.vim/backupdir
+    silent !mkdir -p $HOME/.vim/swapfiles
 
     if !executable('git')
         echohl WarningMsg | echomsg 'Warning: Vim-plug needs git to install the plugins' | echohl None
