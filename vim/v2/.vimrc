@@ -20,16 +20,18 @@ endfunction
     
 function! Settings()
     syntax on                                         "Coloring syntax and highlighting
-    set undodir=~/.vim/undodir                        "Undo directory for undo buffer
+    set backup
     set backupdir=~/.vim/backupdir                    "backupdir
     set directory=~/.vim/swapfiles//                  "swap directory
-    set backup
-    set undofile                                      "save undo buffer in (undodir)ectory
-    set t_ut=                                         "patch, fix render background when tmux has -256color
-    set t_Co=256                                      "patch, set explicit 256 colors for term w/o -256color
-    set t_vb=""                                       "no visual bell (flash) in windows
     set foldlevelstart=99                             "Folds search about :help usr_28
+    set laststatus=2                                  "show file name and save status
+    set mouse=a                                       "using mouse, perfect for mobile version
     set number                                        "show line number
+    set t_Co=256                                      "patch, set explicit 256 colors for term w/o -256color
+    set t_ut=                                         "patch, fix render background when tmux has -256color
+    set t_vb=""                                       "no visual bell (flash) in windows
+    set undodir=~/.vim/undodir                        "Undo directory for undo buffer
+    set undofile                                      "save undo buffer in (undodir)ectory
     try
         colorscheme iceberg | set background=dark     "Iceberg dark
     catch
@@ -40,6 +42,10 @@ endfunction
 function! Mappings()
     let g:mapleader=' '
     inoremap <C-c> <esc>|                               " i_C-c           -> insert MODE mapping Ctrl-c as ESC, VisualBlock problem
+    nnoremap <C-H> <C-W><C-H>|                          " n_C-H           -> change windows (left)
+    nnoremap <C-J> <C-W><C-J>|                          " n_C-J           -> change windows (down)
+    nnoremap <C-K> <C-W><C-K>|                          " n_C-K           -> change windows (up)
+    nnoremap <C-L> <C-W><C-L>|                          " n_C-L           -> change windows (right)
     nnoremap <leader>w :w<CR>|                          " n_<leader>w     -> save
     nnoremap <leader>q :q<CR>|                          " n_<leader>q     -> quit
     nnoremap <leader>a ggVG|                            " n_<leader>U     -> select all document
