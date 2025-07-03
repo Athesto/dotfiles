@@ -82,6 +82,15 @@ function! VimConfig()
     execute 'echom ".vimrc"'
 endfunction
 
+function! TmuxCopySelection()
+    if !executable('tmux-copy-selection')
+        echom 'not found'
+        return
+    endif
+    execute ':normal! gv"yy'
+    call system('tmux-copy-selection', getreg('y'))
+endfunction
+
 function! VimPlugInstall()
     silent !mkdir -p $HOME/.vim/undodir
     silent !mkdir -p $HOME/.vim/backupdir
@@ -105,6 +114,13 @@ function! VimPlugInstall()
         quit
     endif
 endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"--------------------------------------------------------MY Commands  -------------------------------------------------------"
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+command VimConfig call VimConfig()
+command -range TmuxCopySelection call TmuxCopySelection()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "--------------------------------------------------------ENTRY POINT  -------------------------------------------------------"
