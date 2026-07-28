@@ -10,16 +10,21 @@ echo "load ~/.zsh_aliases" 1> /dev/null
 
 export EDITOR='/usr/bin/vim'
 export FZF_DEFAULT_OPTS='--bind ctrl-j:accept'
-export FZF_ALT_C_COMMAND='fd --type d | cut -b3-'
+export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS} --preview='$HOME/.local/bin/fzf-preview {}' --preview-window=right:60%"
+export FZF_ALT_C_COMMAND='fd --type d'
 export FZF_DEFAULT_COMMAND='fd --type f'
 export AWS_PROFILE="aws2024_terraform"
 export FZF_TMUX_OPTS='-p80%,60%'
 export PYTHONSTARTUP=$HOME/.pythonrc
 export PYTHONBREAKPOINT="ipdb.set_trace"
 export PYTHONDONTWRITEBYTECODE=1
+export LC_CTYPE="C.UTF-8"
+#export LANG="C.UTF-8"
 
 # export vscode path
 export PATH="$PATH:$HOME/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+# export gbdk path
+export PATH="${PATH}:/opt/gbdk/bin"
 
 # fzf-popular-dir - list your most popular directories
 function fzf-popular-dir(){
@@ -53,7 +58,7 @@ function fzf-last-20-dirs(){
 
 # search last code in the directory
 function lastcode {
-	local LAST_CODE=$(ls | cut -b-3 | grep -E '\d{2}-' | cut -b-2 | sort | tail -1);
+  local LAST_CODE=$(ls | cut -b-3 | grep -E '\d{2}-' | cut -b-2 | sort | tail -1);
   echo $LAST_CODE
 }
 
@@ -86,11 +91,11 @@ function lscode {
 }
 
 function watch() {
-  for _ in {1..99}; do 
-    clear; 
+  for _ in {1..99}; do
+    clear;
     bash -c "$*";
     sleep 5;
-  done; 
+  done;
   echo
 }
 
@@ -122,6 +127,7 @@ alias lsn="exa --sort name"
 alias npkill="npkill -x . -E 'Library, Applications' --sort size"
 alias denor="deno run"
 alias passgen="openssl rand -base64 32 | tee >(clipcopy)"
+alias vgba="visualboyadvance"
 
 nvm use default 1>/dev/null  # make tmux read the default nvm's node
 export END_LOADED_HOME_ZSH_ALIASES=1
