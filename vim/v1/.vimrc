@@ -97,7 +97,7 @@ function! Settings()
     set noerrorbells                                  "no sounds
     set nowrap                                        "no wrap line if screen is not enough
     set number                                        "show line number
-    set pastetoggle=<F2>                              "disable auto-identing in <C-S-v> with F2
+    "set pastetoggle=<F2>                              "disable auto-identing in <C-S-v> with F2
     set path=.,**|                                    "include actual and all child into path. use :find <sub-file>
     set relativenumber                                "show relative number
     set showcmd                                       "display cmds at bottom right of the screen
