@@ -206,6 +206,7 @@ function! Mappings()
     nnoremap <leader>w :w<CR>|                          " n_<leader>w     -> save
     nnoremap <leader>xe :call VimConfig()<CR>|          " n_<leader>xe    -> edit VIMRC
     nnoremap <leader>j :call CurlLocal()<CR>|           " n_<leader>j     -> curl into localhost
+    nnoremap <leader>- :call HyphenToColorColumn()<CR>|   " n_<jeader>-     -> create ---- to the colorcolumn
     nnoremap G Gzz|                                     " n_G             -> center windows after search end
     "nnoremap H :BuffergatorMruCyclePrev<CR>zz|          " n_Meta-h        -> goto previous buffer (more confortable)
     "nnoremap L :BuffergatorMruCycleNext<CR>zz|          " n_Meta-l        -> goto next buffer (more confortable)
@@ -444,6 +445,35 @@ function! IsWSL()
   endif
 
   return 1
+endfunction
+
+function! HyphenToColorColumn()
+    " Obtener la columna del colorcolumn
+    " Puede ser: 80, 100, +1, +2, etc.
+    let cc = &colorcolumn
+
+    " Si no está configurado, no hacer nada
+    if cc == ''
+        echo "No colorcolumn set"
+        return
+    endif
+
+    " Tomar solamente el primer valor (colorcolumn permite múltiples)
+    let cc = split(cc, ',')[0]
+
+    " Convertir colorcolumn a número absoluto
+    " Si empieza con '+', es relativo al texto
+    if cc[0] ==# '+'
+        let target = virtcol('.') + str2nr(cc[1:])
+    else
+        let target = str2nr(cc)
+    endif
+
+    " Ejecutar el substitute que rellena hasta target
+    execute 's/.\{-}$/\=submatch(0) . repeat("-", ' . target . ' - virtcol("$"))/'
+
+    " Limpiar el highlight
+    nohlsearch
 endfunction
 
 function! YankToXclip()
