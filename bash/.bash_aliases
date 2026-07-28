@@ -1,0 +1,1 @@
+stty -ixon # disable default C-s
