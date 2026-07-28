@@ -15,9 +15,7 @@ return require('packer').startup(function(use)
         end,
     }
     use { 'nvim-lua/plenary.nvim' }  -- " don't forget to add this one if you don't have it yet!
-    use { 'ThePrimeagen/harpoon' }
     use { 'diepm/vim-rest-console' }
-
     use { 'NvChad/nvim-colorizer.lua' }
     use { 'karb94/neoscroll.nvim'};
     use { 'akinsho/bufferline.nvim', tag = "*", requires = 'nvim-tree/nvim-web-devicons'}
