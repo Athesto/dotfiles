@@ -254,7 +254,7 @@ function! SettingFiletypes()
         autocmd BufNewFile,BufRead turbo.json   set filetype=jsonc
         autocmd BufNewFile,BufRead man_[1-9]_*  set filetype=nroff
 
-        autocmd Filetype html,css,json,yaml,zsh,javascript,markdown
+        autocmd Filetype html,css,json,yaml,zsh,javascript,markdown,Dockerfile
                     \ set expandtab sw=2 ts=2 sts=2 fdm=indent
         autocmd Filetype ps1,sh,lua,sshconfig,bash,ruby,vim,htmldjango,xml
                     \ set expandtab sw=4 ts=4 sts=4 fdm=indent
@@ -491,6 +491,15 @@ function! YankToXclip()
     endif
 endfunction
 
+function! TmuxCopySelection()
+    if !executable('tmux-copy-selection')
+        echom 'not found'
+        return
+    endif
+    execute ':normal! gv"yy'
+    call system('tmux-copy-selection', getreg('y'))
+endfunction
+
 function! ClearRegisters()
     let regs=split('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-"', '\zs')
     for r in regs
@@ -575,6 +584,7 @@ endfunction
 
 command VimConfig call VimConfig()
 command SimplifyCSS call Simplify()
+command -range TmuxCopySelection call TmuxCopySelection()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "--------------------------------------------------------ENTRY POINT  -------------------------------------------------------"
