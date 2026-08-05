@@ -1,10 +1,10 @@
 
 -- vim compatibility --------------------------------------------------
 require('athesto.init_vim');                       -- load the ~/.vimrc file
-require('athesto.settings');                        -- load the Athesto settings
+require('athesto.settings');                       -- load the Athesto settings
 
 -- Plugins ------------------------------------------------------------
-require('athesto.packer');                          -- load packer
+require('athesto.packer');                         -- load packer
 
 require('athesto.plugins-config.bufferline');
 require('athesto.plugins-config.coc');
