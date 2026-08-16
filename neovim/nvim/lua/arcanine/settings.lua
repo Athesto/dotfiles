@@ -1,15 +1,15 @@
--- Directories ---------------------------------------------------------
+-- Directories ----------------------------------------------------------------
 
 do
     local state_directory = vim.fn.stdpath("state")
 
-    -- Undo history ----------------------------------------------------
+    -- Undo history -----------------------------------------------------------
     local undo_directory = vim.fs.joinpath( state_directory, "undo")
     vim.fn.mkdir(undo_directory, "p")
     vim.opt.undodir = undo_directory
     vim.opt.undofile = true
 
-    -- Backups ---------------------------------------------------------
+    -- Backups ----------------------------------------------------------------
     local backup_directory = vim.fs.joinpath( state_directory, "backup")
     vim.fn.mkdir(backup_directory, "p")
     vim.opt.backupdir = backup_directory .. "//"
@@ -17,26 +17,25 @@ do
 
 end
 
--- Options -------------------------------------------------------------
+-- Options --------------------------------------------------------------------
 
 vim.opt.termguicolors = true
 
 
--- Commands ------------------------------------------------------------
+-- Commands -------------------------------------------------------------------
 
 vim.api.nvim_create_user_command("NeovimConfig", function()
-    local config_file = vim.fs.joinpath(
-        vim.fn.stdpath("config"),
-        "init.lua"
-    )
+    local config_dir = vim.fn.stdpath("config")
+    local config_file = vim.fs.joinpath(config_dir, "init.lua")
 
-    vim.cmd("tabnew " .. vim.fn.fnameescape(config_file))
+    vim.cmd.tabnew(config_file)
+    vim.cmd.tcd(config_dir)
 end, {
     desc = "Open Neovim Configuration",
 })
 
 
--- Keymaps -------------------------------------------------------------
+-- Keymaps --------------------------------------------------------------------
 
 vim.keymap.set(
     "n",
@@ -47,3 +46,4 @@ vim.keymap.set(
         desc = "Abrir configuración de Neovim",
     }
 )
+vim.keymap.set("n", "<leader>ki", vim.diagnostic.open_float)
