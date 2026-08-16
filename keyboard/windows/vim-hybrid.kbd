@@ -1,0 +1,121 @@
+;; Athesto Keyboard - Windows / Kanata
+;;
+;; Caps tap        -> Escape
+;; Caps hold       -> Vim Hybrid
+;; Caps+Space      -> QWERTY / Colemak-DH
+;; Caps+RightShift -> Caps Lock
+;; Right Win       -> Right Alt
+;;
+;; Vim Hybrid semantics:
+;;   no modifier -> character
+;;   Alt         -> word
+;;   Ctrl        -> line/document
+;;   Shift       -> selection
+;;
+;; The fork actions inspect held modifiers, so Alt/Ctrl/Shift may be pressed
+;; before or after Caps. Alt takes precedence if Alt and Ctrl are both active.
+
+(defcfg
+  process-unmapped-keys yes
+)
+
+(defsrc
+  esc  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rmet rctl
+)
+
+(defalias
+  caps-q (tap-hold-press 200 200 esc (layer-while-held vim-qwerty))
+  caps-c (tap-hold-press 200 200 esc (layer-while-held vim-colemak))
+
+  to-qwerty (layer-switch qwerty)
+  to-colemak (layer-switch colemak)
+
+  ;; Horizontal movement: character / line / word.
+  nav-h (fork
+          (fork left
+                (unmod (lctl rctl lalt ralt rmet) home)
+                (lctl rctl))
+          (unmod (lctl rctl lalt ralt rmet) C-left)
+          (lalt ralt rmet))
+
+  nav-l (fork
+          (fork rght
+                (unmod (lctl rctl lalt ralt rmet) end)
+                (lctl rctl))
+          (unmod (lctl rctl lalt ralt rmet) C-rght)
+          (lalt ralt rmet))
+
+  ;; Vertical movement: line / document / paragraph.
+  nav-j (fork
+          (fork down
+                (unmod (lctl rctl lalt ralt rmet) C-end)
+                (lctl rctl))
+          (unmod (lctl rctl lalt ralt rmet) C-down)
+          (lalt ralt rmet))
+
+  nav-k (fork
+          (fork up
+                (unmod (lctl rctl lalt ralt rmet) C-home)
+                (lctl rctl))
+          (unmod (lctl rctl lalt ralt rmet) C-up)
+          (lalt ralt rmet))
+
+  ;; Backward deletion: character / line / word.
+  del-w (fork
+          (fork (unmod (lsft rsft) bspc)
+                (unmod (lctl rctl lalt ralt rmet lsft rsft)
+                       (macro S-home bspc))
+                (lctl rctl))
+          (unmod (lctl rctl lalt ralt rmet lsft rsft) C-bspc)
+          (lalt ralt rmet))
+
+  ;; Forward deletion: character / line / word.
+  del-x (fork
+          (fork (unmod (lsft rsft) del)
+                (unmod (lctl rctl lalt ralt rmet lsft rsft)
+                       (macro S-end del))
+                (lctl rctl))
+          (unmod (lctl rctl lalt ralt rmet lsft rsft) C-del)
+          (lalt ralt rmet))
+)
+
+;; QWERTY base. The physical Esc position produces grave/tilde.
+(deflayer qwerty
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @caps-q a  s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt ralt rctl
+)
+
+;; Colemak-DH ANSI with Angle Mod.
+(deflayer colemak
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    f    p    b    j    l    u    y    ;    [    ]    \
+  @caps-c a  r    s    t    g    m    n    e    i    o    '    ret
+  lsft x    c    d    v    z    k    h    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt ralt rctl
+)
+
+;; Vim Hybrid while QWERTY is the base layout.
+(deflayer vim-qwerty
+  _    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12  _
+  _    _    @del-w _  _    _    _    pgup tab  _    _    esc  _    _
+  _    home prnt pgdn end  _    @nav-h @nav-j @nav-k @nav-l _  _    ret
+  _    _    @del-x _  _    _    _    ret  _    _    _    caps
+  _    _    _              @to-colemak    _    _    _
+)
+
+;; Vim Hybrid while Colemak-DH is the base layout. Navigation remains on the
+;; same physical QWERTY positions; only Space switches back to QWERTY.
+(deflayer vim-colemak
+  _    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12  _
+  _    _    @del-w _  _    _    _    pgup tab  _    _    esc  _    _
+  _    home prnt pgdn end  _    @nav-h @nav-j @nav-k @nav-l _  _    ret
+  _    _    @del-x _  _    _    _    ret  _    _    _    caps
+  _    _    _              @to-qwerty     _    _    _
+)
