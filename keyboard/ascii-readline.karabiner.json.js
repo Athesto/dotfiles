@@ -1,951 +1,886 @@
-var ASCII_READLINE_LAYER = "ascii_readline_layer"
-var VIM_HYBRID_LAYER = "vim_hybrid_layer"
-var COLEMAK_DH = "colemak_dh"
-
+var ASCII_READLINE_LAYER = "ascii_readline_layer";
+var VIM_HYBRID_LAYER = "vim_hybrid_layer";
+var COLEMAK_DH = "colemak_dh";
+var INPUT_SOURCE_ABC_STANDARD = "abc_standard";
+var INPUT_SOURCE_US_ALTGR_INTL = "us_altgr_intl";
 
 /* -------------------------------------------------------------------------- */
 /* MAPPINGS                                                                   */
 /* -------------------------------------------------------------------------- */
 
 var asciiReadlineMappings = {
-    /*
-     * ASCII
-     */
-    h: "delete_or_backspace",
-    i: "tab",
-    m: "return_or_enter",
-    open_bracket: "escape",
+  /*
+   * ASCII
+   */
+  h: "delete_or_backspace",
+  i: "tab",
+  m: "return_or_enter",
+  open_bracket: "escape",
 
-    /*
-     * Readline
-     */
-    a: "home",
-    e: "end",
-    b: "left_arrow",
-    f: "right_arrow",
-    p: "up_arrow",
-    n: "down_arrow",
+  /*
+   * Readline
+   */
+  a: "home",
+  e: "end",
+  b: "left_arrow",
+  f: "right_arrow",
+  p: "up_arrow",
+  n: "down_arrow",
 
-    /*
-     * Page navigation
-     */
-    y: "page_up",
-    v: "page_down",
+  /*
+   * Page navigation
+   */
+  y: "page_up",
+  v: "page_down",
 
-    /*
-     * Editing
-     */
-    d: "delete_forward",
+  /*
+   * Editing
+   */
+  d: "delete_forward",
+};
 
-    /*
-     * 60%
-     */
-    s: "print_screen"
-}
+var vimHybridMappings = {
+  /*
+   * ASCII
+   */
+  i: "tab",
+  m: "return_or_enter",
+  open_bracket: "escape",
 
+  /*
+   * Vim navigation
+   */
+  h: "left_arrow",
+  j: "down_arrow",
+  k: "up_arrow",
+  l: "right_arrow",
+  u: "page_up",
+  d: "page_down",
+
+  /*
+   * Line navigation
+   */
+  a: "home",
+  e: "end",
+};
 
 var functionMappings = {
-    "1": "f1",
-    "2": "f2",
-    "3": "f3",
-    "4": "f4",
-    "5": "f5",
-    "6": "f6",
-    "7": "f7",
-    "8": "f8",
-    "9": "f9",
-    "0": "f10",
-    hyphen: "f11",
-    equal_sign: "f12"
-}
-
+  1: "f1",
+  2: "f2",
+  3: "f3",
+  4: "f4",
+  5: "f5",
+  6: "f6",
+  7: "f7",
+  8: "f8",
+  9: "f9",
+  0: "f10",
+  hyphen: "f11",
+  equal_sign: "f12",
+};
 
 var colemakMappings = {
-    /*
-     * Colemak-DH ANSI
-     *
-     * Q W F P B   J L U Y ;
-     * A R S T G   M N E I O
-     *  X C D V Z   K H , . /
-     */
+  /*
+   * Colemak-DH ANSI
+   *
+   * Q W F P B   J L U Y ;
+   * A R S T G   M N E I O
+   *  X C D V Z   K H , . /
+   */
 
-    e: "f",
-    r: "p",
-    t: "b",
-    y: "j",
-    u: "l",
-    i: "u",
-    o: "y",
-    p: "semicolon",
+  e: "f",
+  r: "p",
+  t: "b",
+  y: "j",
+  u: "l",
+  i: "u",
+  o: "y",
+  p: "semicolon",
 
-    s: "r",
-    d: "s",
-    f: "t",
-    h: "m",
-    j: "n",
-    k: "e",
-    l: "i",
-    semicolon: "o",
+  s: "r",
+  d: "s",
+  f: "t",
+  h: "m",
+  j: "n",
+  k: "e",
+  l: "i",
+  semicolon: "o",
 
-    z: "x",
-    x: "c",
-    c: "d",
-    b: "z",
-    n: "k",
-    m: "h"
-}
-
+  z: "x",
+  x: "c",
+  c: "d",
+  b: "z",
+  n: "k",
+  m: "h",
+};
 
 /* -------------------------------------------------------------------------- */
 /* CONDITIONS                                                                 */
 /* -------------------------------------------------------------------------- */
 
 function variableIf(name, value) {
-    return {
-        type: "variable_if",
-        name: name,
-        value: value
-    }
+  return {
+    type: "variable_if",
+    name: name,
+    value: value,
+  };
 }
-
 
 function variableUnless(name, value) {
-    return {
-        type: "variable_unless",
-        name: name,
-        value: value
-    }
+  return {
+    type: "variable_unless",
+    name: name,
+    value: value,
+  };
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* GENERIC HELPERS                                                            */
 /* -------------------------------------------------------------------------- */
 
-function createMapping(
-    from,
-    to,
-    conditions
-) {
-    return {
-        type: "basic",
+function createMapping(from, to, conditions) {
+  return {
+    type: "basic",
 
-        from: {
-            key_code: from,
-            modifiers: {
-                optional: ["any"]
-            }
-        },
+    from: {
+      key_code: from,
+      modifiers: {
+        optional: ["any"],
+      },
+    },
 
-        to: [
-            {
-                key_code: to
-            }
-        ],
+    to: [
+      {
+        key_code: to,
+      },
+    ],
 
-        conditions: conditions
-    }
+    conditions: conditions,
+  };
 }
 
+function createModifiedMapping(from, to, modifiers, conditions) {
+  return {
+    type: "basic",
 
-function createModifiedMapping(
-    from,
-    to,
-    modifiers,
-    conditions
-) {
-    return {
-        type: "basic",
+    from: {
+      key_code: from,
+      modifiers: {
+        optional: ["any"],
+      },
+    },
 
-        from: {
-            key_code: from,
-            modifiers: {
-                optional: ["any"]
-            }
-        },
+    to: [
+      {
+        key_code: to,
+        modifiers: modifiers,
+      },
+    ],
 
-        to: [
-            {
-                key_code: to,
-                modifiers: modifiers
-            }
-        ],
-
-        conditions: conditions
-    }
+    conditions: conditions,
+  };
 }
-
 
 function createMandatoryModifiedMapping(
-    from,
-    to,
-    mandatoryModifiers,
-    toModifiers,
-    conditions
+  from,
+  to,
+  mandatoryModifiers,
+  toModifiers,
+  conditions
 ) {
-    return {
+  return {
+    type: "basic",
+
+    from: {
+      key_code: from,
+      modifiers: {
+        mandatory: mandatoryModifiers,
+      },
+    },
+
+    to: [
+      {
+        key_code: to,
+        modifiers: toModifiers,
+      },
+    ],
+
+    conditions: conditions,
+  };
+}
+
+function createRightCommandAsOptionRule() {
+  return {
+    description: "Right Command as Right Option",
+
+    manipulators: [
+      {
         type: "basic",
 
         from: {
-            key_code: from,
-            modifiers: {
-                mandatory: mandatoryModifiers
-            }
+          key_code: "right_command",
+          modifiers: {
+            optional: ["any"],
+          },
         },
 
         to: [
-            {
-                key_code: to,
-                modifiers: toModifiers
-            }
+          {
+            key_code: "right_option",
+          },
         ],
-
-        conditions: conditions
-    }
+      },
+    ],
+  };
 }
-
-
-function createRightCommandAsOptionRule() {
-    return {
-        description: "Right Command as Right Option",
-
-        manipulators: [
-            {
-                type: "basic",
-
-                from: {
-                    key_code: "right_command",
-                    modifiers: {
-                        optional: ["any"]
-                    }
-                },
-
-                to: [
-                    {
-                        key_code: "right_option"
-                    }
-                ]
-            }
-        ]
-    }
-}
-
 
 function createMandatorySequenceMapping(
-    from,
-    mandatoryModifiers,
-    sequence,
-    conditions
+  from,
+  mandatoryModifiers,
+  sequence,
+  conditions
 ) {
-    return {
-        type: "basic",
+  return {
+    type: "basic",
 
-        from: {
-            key_code: from,
-            modifiers: {
-                mandatory: mandatoryModifiers
-            }
-        },
+    from: {
+      key_code: from,
+      modifiers: {
+        mandatory: mandatoryModifiers,
+      },
+    },
 
-        to: sequence,
+    to: sequence,
 
-        conditions: conditions
-    }
+    conditions: conditions,
+  };
 }
 
+function createSequenceMapping(from, sequence, conditions) {
+  return {
+    type: "basic",
 
-function createSequenceMapping(
-    from,
-    sequence,
-    conditions
-) {
-    return {
-        type: "basic",
+    from: {
+      key_code: from,
+      modifiers: {
+        optional: ["any"],
+      },
+    },
 
-        from: {
-            key_code: from,
-            modifiers: {
-                optional: ["any"]
-            }
-        },
+    to: sequence,
 
-        to: sequence,
-
-        conditions: conditions
-    }
+    conditions: conditions,
+  };
 }
 
+function createMappingsFromObject(mappings, conditions) {
+  var manipulators = [];
+  var keys = Object.keys(mappings);
+
+  var i;
+  var from;
+  var to;
+
+  for (i = 0; i < keys.length; i += 1) {
+    from = keys[i];
+    to = mappings[from];
+
+    manipulators.push(createMapping(from, to, conditions));
+  }
+
+  return manipulators;
+}
 
 /* -------------------------------------------------------------------------- */
 /* LAYERS                                                                     */
 /* -------------------------------------------------------------------------- */
 
 function createLayerActivator(layer) {
-    return {
-        type: "basic",
+  return {
+    type: "basic",
 
-        from: {
-            key_code: "caps_lock",
-            modifiers: {
-                optional: ["any"]
-            }
+    from: {
+      key_code: "caps_lock",
+      modifiers: {
+        optional: ["any"],
+      },
+    },
+
+    to: [
+      {
+        set_variable: {
+          name: layer,
+          value: 1,
         },
+      },
+    ],
 
-        to: [
-            {
-                set_variable: {
-                    name: layer,
-                    value: 1
-                }
-            }
-        ],
+    to_after_key_up: [
+      {
+        set_variable: {
+          name: layer,
+          value: 0,
+        },
+      },
+    ],
 
-        to_after_key_up: [
-            {
-                set_variable: {
-                    name: layer,
-                    value: 0
-                }
-            }
-        ],
-
-        to_if_alone: [
-            {
-                key_code: "escape"
-            }
-        ]
-    }
+    to_if_alone: [
+      {
+        key_code: "escape",
+      },
+    ],
+  };
 }
-
 
 function createCapsLockMapping(layer) {
-    return {
-        type: "basic",
+  return {
+    type: "basic",
 
-        from: {
-            key_code: "right_shift"
-        },
+    from: {
+      key_code: "right_shift",
+      modifiers: {
+        optional: ["any"],
+      },
+    },
 
-        to: [
-            {
-                key_code: "caps_lock"
-            }
-        ],
+    to: [
+      {
+        key_code: "caps_lock",
+        hold_down_milliseconds: 200,
+      },
+      {
+        key_code: "vk_none",
+      },
+    ],
 
-        conditions: [
-            variableIf(layer, 1)
-        ]
-    }
+    conditions: [variableIf(layer, 1)],
+  };
 }
 
+function createReverseCapsLockMapping() {
+  return {
+    type: "basic",
+
+    from: {
+      key_code: "caps_lock",
+      modifiers: {
+        mandatory: ["right_shift"],
+        optional: ["any"],
+      },
+    },
+
+    to: [
+      {
+        key_code: "caps_lock",
+        hold_down_milliseconds: 200,
+      },
+      {
+        key_code: "vk_none",
+      },
+    ],
+  };
+}
 
 function createColemakToggleMappings(layer) {
-    return [
+  return [
+    {
+      type: "basic",
+
+      from: {
+        key_code: "spacebar",
+      },
+
+      to: [
         {
-            type: "basic",
-
-            from: {
-                key_code: "spacebar"
-            },
-
-            to: [
-                {
-                    set_variable: {
-                        name: COLEMAK_DH,
-                        value: 1
-                    }
-                }
-            ],
-
-            conditions: [
-                variableIf(layer, 1),
-                variableUnless(COLEMAK_DH, 1)
-            ]
+          set_variable: {
+            name: COLEMAK_DH,
+            value: 1,
+          },
         },
+      ],
+
+      conditions: [variableIf(layer, 1), variableUnless(COLEMAK_DH, 1)],
+    },
+    {
+      type: "basic",
+
+      from: {
+        key_code: "spacebar",
+      },
+
+      to: [
         {
-            type: "basic",
+          set_variable: {
+            name: COLEMAK_DH,
+            value: 0,
+          },
+        },
+      ],
 
-            from: {
-                key_code: "spacebar"
-            },
-
-            to: [
-                {
-                    set_variable: {
-                        name: COLEMAK_DH,
-                        value: 0
-                    }
-                }
-            ],
-
-            conditions: [
-                variableIf(layer, 1),
-                variableIf(COLEMAK_DH, 1)
-            ]
-        }
-    ]
+      conditions: [variableIf(layer, 1), variableIf(COLEMAK_DH, 1)],
+    },
+  ];
 }
 
+function createCommonLayerMappings(layer) {
+  var manipulators = [
+    createReverseCapsLockMapping(),
+    createLayerActivator(layer),
+    createCapsLockMapping(layer),
+  ];
+
+  return manipulators.concat(createColemakToggleMappings(layer));
+}
+
+function createABCStandardCharacterMappings(conditions) {
+  return [
+    /* Caps+? -> Option+Shift+/ -> ¿ */
+    createMandatoryModifiedMapping(
+      "slash",
+      "slash",
+      ["shift"],
+      ["left_option", "left_shift"],
+      conditions
+    ),
+
+    /* Caps+! -> Option+1 -> ¡ */
+    createMandatoryModifiedMapping(
+      "1",
+      "1",
+      ["shift"],
+      ["left_option"],
+      conditions
+    ),
+
+    /* Caps+Shift+N -> Option+N -> tilde dead key */
+    createMandatoryModifiedMapping(
+      "n",
+      "n",
+      ["shift"],
+      ["left_option"],
+      conditions
+    ),
+
+    /* Caps+Shift+U -> Option+U -> diaeresis dead key */
+    createMandatoryModifiedMapping(
+      "u",
+      "u",
+      ["shift"],
+      ["left_option"],
+      conditions
+    ),
+
+    /*
+     * Caps+N -> Option+N, N -> ñ
+     */
+    {
+      type: "basic",
+      from: {
+        key_code: "n",
+      },
+      to: [
+        {
+          key_code: "n",
+          modifiers: ["left_option"],
+        },
+        {
+          key_code: "n",
+        },
+      ],
+      conditions: conditions,
+    },
+
+    /* Caps+Shift+' -> Option+` -> grave dead key */
+    createMandatoryModifiedMapping(
+      "quote",
+      "grave_accent_and_tilde",
+      ["shift"],
+      ["left_option"],
+      conditions
+    ),
+    {
+      type: "basic",
+      from: {
+        key_code: "quote",
+      },
+      to: [
+        {
+          key_code: "e",
+          modifiers: ["left_option"],
+        },
+      ],
+      conditions: conditions,
+    },
+  ];
+}
+
+function createUSAltGrIntlCharacterMappings(conditions) {
+  return [
+    createModifiedMapping("quote", "quote", ["left_option"], conditions),
+    createModifiedMapping("n", "n", ["left_option"], conditions),
+  ];
+}
+
+function createInputSourceCharacterMappings(inputSource, conditions) {
+  if (inputSource === INPUT_SOURCE_ABC_STANDARD) {
+    return createABCStandardCharacterMappings(conditions);
+  }
+
+  return createUSAltGrIntlCharacterMappings(conditions);
+}
 
 /* -------------------------------------------------------------------------- */
 /* 60% KEYBOARD                                                               */
 /* -------------------------------------------------------------------------- */
 
 function createGraveAccentMapping() {
-    return {
-        type: "basic",
+  return {
+    type: "basic",
 
-        /*
-         * Esc       -> `
-         * Shift+Esc -> ~
-         */
-        from: {
-            key_code: "escape",
-            modifiers: {
-                optional: ["shift"]
-            }
-        },
+    /*
+     * Esc       -> `
+     * Shift+Esc -> ~
+     */
+    from: {
+      key_code: "escape",
+      modifiers: {
+        optional: ["any"],
+      },
+    },
 
-        to: [
-            {
-                key_code: "grave_accent_and_tilde"
-            }
-        ]
-    }
+    to: [
+      {
+        key_code: "grave_accent_and_tilde",
+      },
+    ],
+  };
 }
-
 
 function generateFunctionMappings(layer) {
-    var manipulators = []
-    var keys = Object.keys(functionMappings)
-    var conditions = [
-        variableIf(layer, 1)
-    ]
+  var manipulators = [];
+  var keys = Object.keys(functionMappings);
+  var conditions = [variableIf(layer, 1)];
 
-    var i
-    var from
-    var to
+  var i;
+  var from;
+  var to;
 
-    for (i = 0; i < keys.length; i += 1) {
-        from = keys[i]
-        to = functionMappings[from]
+  for (i = 0; i < keys.length; i += 1) {
+    from = keys[i];
+    to = functionMappings[from];
 
-        /*
-         * fn is intentional on macOS.
-         *
-         * Caps+2 -> fn+F2 -> real F2
-         */
-        manipulators.push(
-            createModifiedMapping(
-                from,
-                to,
-                ["fn"],
-                conditions
-            )
-        )
+    /*
+     * fn is intentional on macOS.
+     *
+     * Caps+2 -> fn+F2 -> real F2
+     */
+    var mapping = createModifiedMapping(from, to, ["fn"], conditions);
+
+    /* Caps+Shift+1 is reserved for ¡ in the ABC Vim layer. */
+    if (from === "1") {
+      mapping.from.modifiers.optional = [
+        "command",
+        "control",
+        "option",
+        "caps_lock",
+        "fn",
+      ];
     }
 
-    return manipulators
+    manipulators.push(mapping);
+  }
+
+  return manipulators;
 }
 
+function generate60PercentCompatibilityRule() {
+  var manipulators = [createGraveAccentMapping()];
+  var layers = [ASCII_READLINE_LAYER, VIM_HYBRID_LAYER];
+  var i;
+  var conditions;
+
+  for (i = 0; i < layers.length; i += 1) {
+    conditions = [variableIf(layers[i], 1)];
+
+    manipulators.push(createMapping("s", "print_screen", conditions));
+
+    manipulators = manipulators.concat(generateFunctionMappings(layers[i]));
+  }
+
+  return {
+    description: "60% Keyboard Compatibility",
+    manipulators: manipulators,
+  };
+}
 
 /* -------------------------------------------------------------------------- */
 /* ASCII / READLINE                                                           */
 /* -------------------------------------------------------------------------- */
 
 function generateAsciiReadlineRule() {
-    var conditions = [
-        variableIf(
-            ASCII_READLINE_LAYER,
-            1
-        )
-    ]
+  var conditions = [variableIf(ASCII_READLINE_LAYER, 1)];
 
-    var manipulators = [
-        createGraveAccentMapping(),
+  var manipulators = createCommonLayerMappings(ASCII_READLINE_LAYER);
 
-        createLayerActivator(
-            ASCII_READLINE_LAYER
-        ),
+  manipulators = manipulators.concat(
+    createMappingsFromObject(asciiReadlineMappings, conditions)
+  );
 
-        createCapsLockMapping(
-            ASCII_READLINE_LAYER
-        )
-    ]
-
-    var keys = Object.keys(
-        asciiReadlineMappings
+  /*
+   * C-w
+   *
+   * Delete previous word.
+   */
+  manipulators.push(
+    createModifiedMapping(
+      "w",
+      "delete_or_backspace",
+      ["left_option"],
+      conditions
     )
+  );
 
-    manipulators = manipulators.concat(
-        createColemakToggleMappings(
-            ASCII_READLINE_LAYER
-        )
+  /*
+   * C-u
+   *
+   * Delete to beginning.
+   */
+  manipulators.push(
+    createSequenceMapping(
+      "u",
+      [
+        {
+          key_code: "home",
+          modifiers: ["left_shift"],
+        },
+        {
+          key_code: "delete_or_backspace",
+        },
+      ],
+      conditions
     )
+  );
 
-    var i
-    var from
-    var to
-
-    for (i = 0; i < keys.length; i += 1) {
-        from = keys[i]
-        to = asciiReadlineMappings[from]
-
-        manipulators.push(
-            createMapping(
-                from,
-                to,
-                conditions
-            )
-        )
-    }
-
-
-    /*
-     * C-w
-     *
-     * Delete previous word.
-     */
-    manipulators.push(
-        createModifiedMapping(
-            "w",
-            "delete_or_backspace",
-            ["left_option"],
-            conditions
-        )
+  /*
+   * C-k
+   *
+   * Delete to end.
+   */
+  manipulators.push(
+    createSequenceMapping(
+      "k",
+      [
+        {
+          key_code: "end",
+          modifiers: ["left_shift"],
+        },
+        {
+          key_code: "delete_forward",
+        },
+      ],
+      conditions
     )
+  );
 
+  /*
+   * Accent dead key.
+   */
+  manipulators.push(
+    createModifiedMapping("quote", "quote", ["left_option"], conditions)
+  );
 
-    /*
-     * C-u
-     *
-     * Delete to beginning.
-     */
-    manipulators.push(
-        createSequenceMapping(
-            "u",
-            [
-                {
-                    key_code: "home",
-                    modifiers: ["left_shift"]
-                },
-                {
-                    key_code:
-                        "delete_or_backspace"
-                }
-            ],
-            conditions
-        )
-    )
+  return {
+    description: "ASCII/Readline Layer",
 
-
-    /*
-     * C-k
-     *
-     * Delete to end.
-     */
-    manipulators.push(
-        createSequenceMapping(
-            "k",
-            [
-                {
-                    key_code: "end",
-                    modifiers: ["left_shift"]
-                },
-                {
-                    key_code: "delete_forward"
-                }
-            ],
-            conditions
-        )
-    )
-
-
-    /*
-     * Accent dead key.
-     */
-    manipulators.push(
-        createModifiedMapping(
-            "quote",
-            "quote",
-            ["left_option"],
-            conditions
-        )
-    )
-
-
-    manipulators = manipulators.concat(
-        generateFunctionMappings(
-            ASCII_READLINE_LAYER
-        )
-    )
-
-
-    return {
-        description:
-            "60% ASCII/Readline Layer",
-
-        manipulators: manipulators
-    }
+    manipulators: manipulators,
+  };
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* VIM HYBRID                                                                 */
 /* -------------------------------------------------------------------------- */
 
-function generateVimHybridRule() {
-    var conditions = [
-        variableIf(
-            VIM_HYBRID_LAYER,
-            1
-        )
-    ]
+function generateVimHybridRule(inputSource) {
+  var conditions = [variableIf(VIM_HYBRID_LAYER, 1)];
 
-    var manipulators = [
-        createGraveAccentMapping(),
+  var manipulators = createCommonLayerMappings(VIM_HYBRID_LAYER);
 
-        createLayerActivator(
-            VIM_HYBRID_LAYER
-        ),
+  /* Specific shifted dead keys must precede inherited base mappings. */
+  manipulators = manipulators.concat(
+    createInputSourceCharacterMappings(inputSource, conditions)
+  );
 
-        createCapsLockMapping(
-            VIM_HYBRID_LAYER
-        )
-    ]
+  manipulators = manipulators.concat(
+    createMappingsFromObject(vimHybridMappings, conditions)
+  );
 
-    manipulators = manipulators.concat(
-        createColemakToggleMappings(
-            VIM_HYBRID_LAYER
-        )
+  /*
+   * Symmetric deletion
+   *
+   * W          -> character backward
+   * X          -> character forward
+   * Option+W   -> word backward
+   * Option+X   -> word forward
+   * Command+W  -> beginning of line
+   * Command+X  -> end of line
+   */
+
+  manipulators.push(
+    createMandatoryModifiedMapping(
+      "w",
+      "delete_or_backspace",
+      ["option"],
+      ["left_option"],
+      conditions
     )
+  );
 
-
-    /*
-     * ASCII
-     *
-     * C-i = HT
-     * C-m = CR
-     * C-[ = ESC
-     */
-
-    manipulators.push(
-        createMapping(
-            "i",
-            "tab",
-            conditions
-        )
+  manipulators.push(
+    createMandatoryModifiedMapping(
+      "x",
+      "delete_forward",
+      ["option"],
+      ["left_option"],
+      conditions
     )
+  );
 
-    manipulators.push(
-        createMapping(
-            "m",
-            "return_or_enter",
-            conditions
-        )
+  /*
+   * Cmd+W / Cmd+X
+   *
+   * Delete to the beginning or end of line.
+   */
+  manipulators.push(
+    createMandatorySequenceMapping(
+      "w",
+      ["command"],
+      [
+        {
+          key_code: "home",
+          modifiers: ["left_shift"],
+        },
+        {
+          key_code: "delete_or_backspace",
+        },
+      ],
+      conditions
     )
+  );
 
-    manipulators.push(
-        createMapping(
-            "open_bracket",
-            "escape",
-            conditions
-        )
+  manipulators.push(
+    createMandatorySequenceMapping(
+      "x",
+      ["command"],
+      [
+        {
+          key_code: "end",
+          modifiers: ["left_shift"],
+        },
+        {
+          key_code: "delete_forward",
+        },
+      ],
+      conditions
     )
+  );
 
+  manipulators.push(createMapping("w", "delete_or_backspace", conditions));
 
-    /*
-     * Vim
-     *
-     * H J K L
-     */
+  manipulators.push(createMapping("x", "delete_forward", conditions));
 
-    manipulators.push(
-        createMapping(
-            "h",
-            "left_arrow",
-            conditions
-        )
+  /*
+   * Caps+Backspace -> Option+Backspace
+   *
+   * A direct, mnemonic shortcut for deleting the previous word.
+   */
+  manipulators.push(
+    createModifiedMapping(
+      "delete_or_backspace",
+      "delete_or_backspace",
+      ["left_option"],
+      conditions
     )
+  );
 
-    manipulators.push(
-        createMapping(
-            "j",
-            "down_arrow",
-            conditions
-        )
-    )
+  return {
+    description:
+      inputSource === INPUT_SOURCE_ABC_STANDARD
+        ? "Vim Hybrid Layer - ABC Standard"
+        : "Vim Hybrid Layer - US-AltGr-Intl Legacy",
 
-    manipulators.push(
-        createMapping(
-            "k",
-            "up_arrow",
-            conditions
-        )
-    )
-
-    manipulators.push(
-        createMapping(
-            "l",
-            "right_arrow",
-            conditions
-        )
-    )
-
-
-    /*
-     * Vim C-u / C-d
-     */
-
-    manipulators.push(
-        createMapping(
-            "u",
-            "page_up",
-            conditions
-        )
-    )
-
-    manipulators.push(
-        createMapping(
-            "d",
-            "page_down",
-            conditions
-        )
-    )
-
-
-    /*
-     * Readline / Emacs
-     *
-     * C-a / C-e
-     */
-
-    manipulators.push(
-        createMapping(
-            "a",
-            "home",
-            conditions
-        )
-    )
-
-    manipulators.push(
-        createMapping(
-            "e",
-            "end",
-            conditions
-        )
-    )
-
-
-    /*
-     * Symmetric deletion
-     *
-     * W          -> character backward
-     * X          -> character forward
-     * Option+W   -> word backward
-     * Option+X   -> word forward
-     * Command+W  -> beginning of line
-     * Command+X  -> end of line
-     */
-
-    manipulators.push(
-        createMandatoryModifiedMapping(
-            "w",
-            "delete_or_backspace",
-            ["option"],
-            ["left_option"],
-            conditions
-        )
-    )
-
-    manipulators.push(
-        createMandatoryModifiedMapping(
-            "x",
-            "delete_forward",
-            ["option"],
-            ["left_option"],
-            conditions
-        )
-    )
-
-    /*
-     * Cmd+W / Cmd+X
-     *
-     * Delete to the beginning or end of line.
-     */
-    manipulators.push(
-        createMandatorySequenceMapping(
-            "w",
-            ["command"],
-            [
-                {
-                    key_code: "home",
-                    modifiers: ["left_shift"]
-                },
-                {
-                    key_code: "delete_or_backspace"
-                }
-            ],
-            conditions
-        )
-    )
-
-    manipulators.push(
-        createMandatorySequenceMapping(
-            "x",
-            ["command"],
-            [
-                {
-                    key_code: "end",
-                    modifiers: ["left_shift"]
-                },
-                {
-                    key_code: "delete_forward"
-                }
-            ],
-            conditions
-        )
-    )
-
-    manipulators.push(
-        createMapping(
-            "w",
-            "delete_or_backspace",
-            conditions
-        )
-    )
-
-    manipulators.push(
-        createMapping(
-            "x",
-            "delete_forward",
-            conditions
-        )
-    )
-
-
-    /*
-     * Accent dead key.
-     *
-     * Caps+' -> Option+'
-     */
-
-    manipulators.push(
-        createModifiedMapping(
-            "quote",
-            "quote",
-            ["left_option"],
-            conditions
-        )
-    )
-
-
-    /*
-     * Print Screen
-     */
-
-    manipulators.push(
-        createMapping(
-            "s",
-            "print_screen",
-            conditions
-        )
-    )
-
-
-    /*
-     * F1-F12
-     */
-
-    manipulators = manipulators.concat(
-        generateFunctionMappings(
-            VIM_HYBRID_LAYER
-        )
-    )
-
-
-    return {
-        description:
-            "60% Vim Hybrid Layer",
-
-        manipulators: manipulators
-    }
+    manipulators: manipulators,
+  };
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* COLEMAK-DH                                                                 */
 /* -------------------------------------------------------------------------- */
 
 function generateColemakDHRule() {
-    var manipulators = []
-    var keys = Object.keys(colemakMappings)
+  var manipulators = [];
+  var keys = Object.keys(colemakMappings);
 
-    var i
-    var from
-    var to
+  var i;
+  var from;
+  var to;
 
-    for (i = 0; i < keys.length; i += 1) {
-        from = keys[i]
-        to = colemakMappings[from]
+  for (i = 0; i < keys.length; i += 1) {
+    from = keys[i];
+    to = colemakMappings[from];
 
-        manipulators.push(
-            createMapping(
-                from,
-                to,
-                [
-                    variableIf(
-                        COLEMAK_DH,
-                        1
-                    )
-                ]
-            )
-        )
-    }
+    manipulators.push(createMapping(from, to, [variableIf(COLEMAK_DH, 1)]));
+  }
 
-
-    return {
-        description: "Colemak-DH ANSI",
-        manipulators: manipulators
-    }
+  return {
+    description: "Colemak-DH ANSI",
+    manipulators: manipulators,
+  };
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* MAIN                                                                       */
 /* -------------------------------------------------------------------------- */
 
+var rightCommandAsOptionRule = createRightCommandAsOptionRule();
+
+var sixtyPercentCompatibilityRule = generate60PercentCompatibilityRule();
+
+var asciiReadlineRule = generateAsciiReadlineRule();
+
+var vimHybridRule = generateVimHybridRule(INPUT_SOURCE_ABC_STANDARD);
+
+var vimHybridUsAltGrIntlLegacyRule = generateVimHybridRule(
+  INPUT_SOURCE_US_ALTGR_INTL
+);
+
+var colemakDHRule = generateColemakDHRule();
+
 function main() {
-    return {
-        title: "Athesto Keyboard",
+  return {
+    title: "Athesto Keyboard",
 
-        rules: [
-            createRightCommandAsOptionRule(),
-            generateAsciiReadlineRule(),
-            generateVimHybridRule(),
-            generateColemakDHRule()
-        ]
-    }
+    rules: [
+      rightCommandAsOptionRule,
+      sixtyPercentCompatibilityRule,
+      asciiReadlineRule,
+      vimHybridRule,
+      vimHybridUsAltGrIntlLegacyRule,
+      colemakDHRule,
+    ],
+  };
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* OUTPUT                                                                     */
 /* -------------------------------------------------------------------------- */
 
-var output = main()
+var karabinerBindings = main();
 
+console.log(JSON.stringify(karabinerBindings, null, 2));
 
-console.log(
-    JSON.stringify(
-        output,
-        null,
-        2
-    )
-)
-
-
-output.rules[0] // right-command-as-option
-output.rules[1] // ascii-readline
-output.rules[2] // vim-hybrid
-output.rules[3] // colemak
+// rightCommandAsOptionRule
+// sixtyPercentCompatibilityRule
+// asciiReadlineRule
+vimHybridRule;
+// vimHybridUsAltGrIntlLegacyRule
+// colemakDHRule
