@@ -34,52 +34,77 @@
   to-qwerty (layer-switch qwerty)
   to-colemak (layer-switch colemak)
 
+  ;; Spanish character entry on the standard Windows US layout.
+  a-acute (fork (unicode á) (unicode Á) (lsft rsft))
+  e-acute (fork (unicode é) (unicode É) (lsft rsft))
+  i-acute (fork (unicode í) (unicode Í) (lsft rsft))
+  o-acute (fork (unicode ó) (unicode Ó) (lsft rsft))
+  u-acute (fork (unicode ú) (unicode Ú) (lsft rsft))
+  u-diaeresis (fork (unicode ü) (unicode Ü) (lsft rsft))
+  enye (fork (unicode ñ) (unicode Ñ) (lsft rsft))
+
+  acute-q (one-shot 2000 (layer-while-held acute-qwerty))
+  acute-c (one-shot 2000 (layer-while-held acute-colemak))
+  diaeresis-q (one-shot 2000 (layer-while-held diaeresis-qwerty))
+  diaeresis-c (one-shot 2000 (layer-while-held diaeresis-colemak))
+  tilde-q (one-shot 2000 (layer-while-held tilde-qwerty))
+  tilde-c (one-shot 2000 (layer-while-held tilde-colemak))
+
+  enye-q (fork (unicode ñ) @tilde-q (lsft rsft))
+  enye-c (fork (unicode ñ) @tilde-c (lsft rsft))
+  pageup-diaeresis-q (fork pgup @diaeresis-q (lsft rsft))
+  pageup-diaeresis-c (fork pgup @diaeresis-c (lsft rsft))
+  f1-inverted-exclamation (fork f1 (unicode ¡) (lsft rsft))
+  slash-inverted-question (fork / (unicode ¿) (lsft rsft))
+
   ;; Horizontal movement: character / line / word.
   nav-h (fork
           (fork left
                 (unmod (lctl rctl lalt ralt rmet) home)
                 (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet) C-left)
+          (unmod (lctl rctl lalt ralt rmet) lctl left)
           (lalt ralt rmet))
 
   nav-l (fork
           (fork rght
                 (unmod (lctl rctl lalt ralt rmet) end)
                 (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet) C-rght)
+          (unmod (lctl rctl lalt ralt rmet) lctl rght)
           (lalt ralt rmet))
 
   ;; Vertical movement: line / document / paragraph.
   nav-j (fork
           (fork down
-                (unmod (lctl rctl lalt ralt rmet) C-end)
+                (unmod (lctl rctl lalt ralt rmet) lctl end)
                 (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet) C-down)
+          (unmod (lctl rctl lalt ralt rmet) lctl down)
           (lalt ralt rmet))
 
   nav-k (fork
           (fork up
-                (unmod (lctl rctl lalt ralt rmet) C-home)
+                (unmod (lctl rctl lalt ralt rmet) lctl home)
                 (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet) C-up)
+          (unmod (lctl rctl lalt ralt rmet) lctl up)
           (lalt ralt rmet))
 
   ;; Backward deletion: character / line / word.
   del-w (fork
           (fork (unmod (lsft rsft) bspc)
-                (unmod (lctl rctl lalt ralt rmet lsft rsft)
-                       (macro S-home bspc))
+                (macro
+                  (unmod (lctl rctl lalt ralt rmet lsft rsft) lsft home)
+                  bspc)
                 (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet lsft rsft) C-bspc)
+          (unmod (lctl rctl lalt ralt rmet lsft rsft) lctl bspc)
           (lalt ralt rmet))
 
   ;; Forward deletion: character / line / word.
   del-x (fork
           (fork (unmod (lsft rsft) del)
-                (unmod (lctl rctl lalt ralt rmet lsft rsft)
-                       (macro S-end del))
+                (macro
+                  (unmod (lctl rctl lalt ralt rmet lsft rsft) lsft end)
+                  del)
                 (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet lsft rsft) C-del)
+          (unmod (lctl rctl lalt ralt rmet lsft rsft) lctl del)
           (lalt ralt rmet))
 )
 
@@ -103,19 +128,69 @@
 
 ;; Vim Hybrid while QWERTY is the base layout.
 (deflayer vim-qwerty
-  _    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12  _
-  _    _    @del-w _  _    _    _    pgup tab  _    _    esc  _    _
-  _    home prnt pgdn end  _    @nav-h @nav-j @nav-k @nav-l _  _    ret
-  _    _    @del-x _  _    _    _    ret  _    _    _    caps
+  _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
+  _    _    @del-w end  _    _    _    @pageup-diaeresis-q tab _ _ esc _ _
+  _    home prnt pgdn _    _    @nav-h @nav-j @nav-k @nav-l _  @acute-q ret
+  _    _    @del-x _  _    _    @enye-q ret  _    _    @slash-inverted-question caps
   _    _    _              @to-colemak    _    _    _
 )
 
 ;; Vim Hybrid while Colemak-DH is the base layout. Navigation remains on the
 ;; same physical QWERTY positions; only Space switches back to QWERTY.
 (deflayer vim-colemak
-  _    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12  _
-  _    _    @del-w _  _    _    _    pgup tab  _    _    esc  _    _
-  _    home prnt pgdn end  _    @nav-h @nav-j @nav-k @nav-l _  _    ret
-  _    _    @del-x _  _    _    _    ret  _    _    _    caps
+  _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
+  _    _    @del-w end  _    _    _    @pageup-diaeresis-c tab _ _ esc _ _
+  _    home prnt pgdn _    _    @nav-h @nav-j @nav-k @nav-l _  @acute-c ret
+  _    _    @del-x _  _    _    @enye-c ret  _    _    @slash-inverted-question caps
   _    _    _              @to-qwerty     _    _    _
+)
+
+;; One-shot accent layers follow the active typing layout. Unmapped keys are
+;; transparent and consume the one-shot without changing their normal output.
+(deflayer acute-qwerty
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ @e-acute _ _ _ @u-acute @i-acute @o-acute _ _ _ _
+  _ @a-acute _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _
+)
+
+(deflayer acute-colemak
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ @u-acute _ _ _ _ _
+  _ @a-acute _ _ _ _ _ _ @e-acute @i-acute @o-acute _ _
+  _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _
+)
+
+(deflayer diaeresis-qwerty
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ @u-diaeresis _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _
+)
+
+(deflayer diaeresis-colemak
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ @u-diaeresis _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _
+)
+
+(deflayer tilde-qwerty
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ @enye _ _ _ _ _
+  _ _ _ _ _ _ _
+)
+
+(deflayer tilde-colemak
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ @enye _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _
 )

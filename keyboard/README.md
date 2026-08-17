@@ -20,31 +20,34 @@ The configuration combines:
 | -------- | ------------------- |
 | macOS    | Karabiner-Elements  |
 | Windows  | Kanata              |
-| Linux    | Kanata / keyd (TBD) |
+| Linux    | Kanata              |
 
 The logical behavior should remain consistent across platforms whenever
 possible, while platform-specific implementations may differ.
 
 ### Windows / Kanata
 
+See [`windows/README.md`](windows/README.md) for installation, Task Scheduler,
+logging, and troubleshooting instructions.
+
 The Windows implementation is grouped under:
 
 ```text
 windows/
 ├── vim-hybrid.kbd
-├── install-kanata.cmd
-├── start-kanata.cmd
-├── stop-kanata.cmd
-└── uninstall-kanata.cmd
+├── install-kanata.ps1
+├── start-kanata.ps1
+├── stop-kanata.ps1
+└── uninstall-kanata.ps1
 ```
 
 Run the scripts in this order:
 
 ```text
-install-kanata.cmd → download the latest official Kanata GUI release
-start-kanata.cmd   → enable the remaps
-stop-kanata.cmd    → stop Kanata and restore normal keyboard behavior
-uninstall-kanata.cmd → stop Kanata and remove only the downloaded runtime
+install-kanata.ps1 → download the latest official Kanata WinIOv2 release
+start-kanata.ps1   → enable the remaps and write runtime/kanata.log
+stop-kanata.ps1    → stop Kanata and restore normal keyboard behavior
+uninstall-kanata.ps1 → stop Kanata and remove only the downloaded runtime
 ```
 
 The scripts resolve paths relative to their own directory, so the dotfiles
@@ -105,6 +108,12 @@ The accent layer follows the active QWERTY or Colemak-DH typing positions.
 Kanata notes that Unicode output may not be accepted by every application, so
 these bindings should be tested in terminals and elevated applications on the
 target Windows machine.
+
+### Linux / Kanata
+
+The Linux implementation is grouped under [`linux/`](linux/). See
+[`linux/README.md`](linux/README.md) for installation, `input`/`uinput`
+permissions, the systemd user service, journald logs, and troubleshooting.
 
 ### macOS input-source profiles
 
