@@ -74,7 +74,7 @@ C:\Windows\System32\conhost.exe
 **Start in:**
 
 ```text
-C:\Users\Mejia\github.com\Athesto\dotfiles\keyboard\windows
+<path_of_dotfiles>\dotfiles\keyboard\windows
 ```
 
 No se debe incluir `-WindowStyle Hidden`: `conhost.exe --headless` ya se encarga

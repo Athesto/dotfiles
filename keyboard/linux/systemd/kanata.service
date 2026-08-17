@@ -1,0 +1,12 @@
+[Unit]
+Description=Athesto Keyboard - Kanata remapper
+Documentation=https://github.com/jtroo/kanata
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/kanata --cfg %h/.config/kanata/vim-hybrid.kbd --no-wait
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target
