@@ -4,7 +4,7 @@ var COLEMAK_DH = "colemak_dh";
 var INPUT_SOURCE_ABC_STANDARD = "abc_standard";
 var INPUT_SOURCE_US_ALTGR_INTL = "us_altgr_intl";
 var LAYOUT_NOTIFICATION = "keyboard_layout";
-var LAYOUT_NOTIFICATION_DURATION_MS = 400;
+var LAYOUT_NOTIFICATION_DURATION_MS = 1000;
 
 /* -------------------------------------------------------------------------- */
 /* MAPPINGS                                                                   */
