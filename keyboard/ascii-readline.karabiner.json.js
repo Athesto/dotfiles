@@ -3,6 +3,8 @@ var VIM_HYBRID_LAYER = "vim_hybrid_layer";
 var COLEMAK_DH = "colemak_dh";
 var INPUT_SOURCE_ABC_STANDARD = "abc_standard";
 var INPUT_SOURCE_US_ALTGR_INTL = "us_altgr_intl";
+var LAYOUT_NOTIFICATION = "keyboard_layout";
+var LAYOUT_NOTIFICATION_DURATION_MS = 400;
 
 /* -------------------------------------------------------------------------- */
 /* MAPPINGS                                                                   */
@@ -381,44 +383,56 @@ function createReverseCapsLockMapping() {
   };
 }
 
+function layoutNotification(text) {
+  return {
+    set_notification_message: {
+      id: LAYOUT_NOTIFICATION,
+      text: text,
+    },
+  };
+}
+
+function createLayoutToggleMapping(layer, currentValue, nextValue, name) {
+  var currentLayoutCondition =
+    currentValue === 1
+      ? variableIf(COLEMAK_DH, 1)
+      : variableUnless(COLEMAK_DH, 1);
+
+  return {
+    type: "basic",
+
+    from: {
+      key_code: "spacebar",
+    },
+
+    to: [
+      {
+        set_variable: {
+          name: COLEMAK_DH,
+          value: nextValue,
+        },
+      },
+      layoutNotification(name),
+    ],
+
+    to_delayed_action: {
+      to_if_invoked: [layoutNotification("")],
+      to_if_canceled: [layoutNotification("")],
+    },
+
+    parameters: {
+      "basic.to_delayed_action_delay_milliseconds":
+        LAYOUT_NOTIFICATION_DURATION_MS,
+    },
+
+    conditions: [variableIf(layer, 1), currentLayoutCondition],
+  };
+}
+
 function createColemakToggleMappings(layer) {
   return [
-    {
-      type: "basic",
-
-      from: {
-        key_code: "spacebar",
-      },
-
-      to: [
-        {
-          set_variable: {
-            name: COLEMAK_DH,
-            value: 1,
-          },
-        },
-      ],
-
-      conditions: [variableIf(layer, 1), variableUnless(COLEMAK_DH, 1)],
-    },
-    {
-      type: "basic",
-
-      from: {
-        key_code: "spacebar",
-      },
-
-      to: [
-        {
-          set_variable: {
-            name: COLEMAK_DH,
-            value: 0,
-          },
-        },
-      ],
-
-      conditions: [variableIf(layer, 1), variableIf(COLEMAK_DH, 1)],
-    },
+    createLayoutToggleMapping(layer, 0, 1, "Colemak-DH"),
+    createLayoutToggleMapping(layer, 1, 0, "QWERTY"),
   ];
 }
 
