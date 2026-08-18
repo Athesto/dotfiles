@@ -124,6 +124,36 @@ También puedes probar manualmente:
 La ejecución manual conserva la terminal abierta para mostrar errores de
 configuración. Pulsa `Ctrl+C` para detenerla.
 
+WinIOv2 puede escribir `channel disconnected` y finalizar con el código
+`-1073740791` al recibir `Ctrl+C`. `start-kanata.ps1` reconoce únicamente esa
+combinación como un cierre esperado. Cualquier otro código distinto de cero se
+sigue tratando como un error real.
+
+## Notificación de QWERTY/Colemak
+
+Mientras Kanata está activo, `start-kanata.ps1` mantiene su icono en la bandeja
+del sistema. Al cambiar la capa base con `Caps+Space`, el icono muestra una
+notificación breve con `Modo QWERTY` o `Modo Colemak-DH`.
+
+`start-kanata.ps1` inicia un único proceso de notificación oculto. El cambio de
+capa escribe inmediatamente el modo nuevo en
+`runtime/layer-notification.txt`. El proceso de bandeja detecta el cambio y
+muestra el popup sin bloquear Kanata.
+
+El popup es una ventana pequeña sin bordes en la esquina inferior derecha y se
+oculta después de aproximadamente 400 ms. No usa el globo de notificaciones de
+Windows porque el sistema impone una duración mínima a esos avisos.
+
+No necesita OverKeys ni un puerto TCP. Las capas temporales `vim-qwerty` y
+`vim-colemak` no escriben el archivo, por lo que mantener Caps no produce
+notificaciones. Los cambios rápidos actualizan el mismo estado en lugar de
+mantener procesos de tres segundos en una cola.
+
+Esta función requiere la variante oficial `winIOv2` con `cmd_allowed`. El
+instalador selecciona esa variante de forma explícita. Después de actualizar
+estos archivos, detén Kanata y vuelve a ejecutar `install-kanata.ps1` antes de
+iniciarlo.
+
 Si Kanata informa que una tecla está presionada internamente pero no en Windows,
 está corrigiendo una desincronización de WinIOv2. Si ocurre repetidamente,
 comprueba que no exista otro remapeador activo y conserva el retraso del trigger

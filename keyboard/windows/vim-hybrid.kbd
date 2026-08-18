@@ -17,6 +17,7 @@
 
 (defcfg
   process-unmapped-keys yes
+  danger-enable-cmd yes
 )
 
 (defsrc
@@ -31,8 +32,12 @@
   caps-q (tap-hold-press 200 200 esc (layer-while-held vim-qwerty))
   caps-c (tap-hold-press 200 200 esc (layer-while-held vim-colemak))
 
-  to-qwerty (layer-switch qwerty)
-  to-colemak (layer-switch colemak)
+  to-qwerty (multi
+              (layer-switch qwerty)
+              (cmd cmd.exe /d /c "echo qwerty>runtime\layer-notification.txt"))
+  to-colemak (multi
+               (layer-switch colemak)
+               (cmd cmd.exe /d /c "echo colemak>runtime\layer-notification.txt"))
 
   ;; Spanish character entry on the standard Windows US layout.
   a-acute (fork (unicode á) (unicode Á) (lsft rsft))
@@ -129,7 +134,7 @@
 ;; Vim Hybrid while QWERTY is the base layout.
 (deflayer vim-qwerty
   _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    _    @del-w end  _    _    _    @pageup-diaeresis-q tab _ _ esc _ _
+  _    A-f4 @del-w end  _    _    _    @pageup-diaeresis-q tab _ _ esc _ _
   _    home prnt pgdn _    _    @nav-h @nav-j @nav-k @nav-l _  @acute-q ret
   _    _    @del-x _  _    _    @enye-q ret  _    _    @slash-inverted-question caps
   _    _    _              @to-colemak    _    _    _
@@ -139,7 +144,7 @@
 ;; same physical QWERTY positions; only Space switches back to QWERTY.
 (deflayer vim-colemak
   _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    _    @del-w end  _    _    _    @pageup-diaeresis-c tab _ _ esc _ _
+  _    A-f4 @del-w end  _    _    _    @pageup-diaeresis-c tab _ _ esc _ _
   _    home prnt pgdn _    _    @nav-h @nav-j @nav-k @nav-l _  @acute-c ret
   _    _    @del-x _  _    _    @enye-c ret  _    _    @slash-inverted-question caps
   _    _    _              @to-qwerty     _    _    _

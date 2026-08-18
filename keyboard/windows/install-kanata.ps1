@@ -35,7 +35,10 @@ try {
 
     $winIoExecutables = @(
         Get-ChildItem -LiteralPath $temporaryDirectory -Recurse -File -Filter '*.exe' |
-            Where-Object { $_.Name -like '*winIOv2*' }
+            Where-Object {
+                $_.Name -like '*winIOv2*' -and
+                $_.Name -like '*cmd_allowed*'
+            }
     )
 
     $kanataSource = $winIoExecutables |
@@ -47,7 +50,7 @@ try {
     }
 
     if (-not $kanataSource) {
-        throw 'No Kanata winIOv2 executable was found in the release.'
+        throw 'No Kanata winIOv2 cmd_allowed executable was found in the release.'
     }
 
     Write-Host "Selected Kanata variant: $($kanataSource.Name)"
