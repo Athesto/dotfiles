@@ -131,7 +131,7 @@
 ;; Vim Hybrid while QWERTY is the base layout.
 (deflayer vim-qwerty
   _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    _    @del-w end  _    _    _    @pageup-diaeresis-q tab _ _ esc _ _
+  _    A-f4 @del-w end  _    _    _    @pageup-diaeresis-q tab _ _ esc _ _
   _    home prnt pgdn _    _    @nav-h @nav-j @nav-k @nav-l _  @acute-q ret
   _    _    @del-x _  _    _    @enye-q ret  _    _    @slash-inverted-question caps
   _    _    _              @to-colemak    _    _    _
@@ -141,7 +141,7 @@
 ;; same physical QWERTY positions; only Space switches back to QWERTY.
 (deflayer vim-colemak
   _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    _    @del-w end  _    _    _    @pageup-diaeresis-c tab _ _ esc _ _
+  _    A-f4 @del-w end  _    _    _    @pageup-diaeresis-c tab _ _ esc _ _
   _    home prnt pgdn _    _    @nav-h @nav-j @nav-k @nav-l _  @acute-c ret
   _    _    @del-x _  _    _    @enye-c ret  _    _    @slash-inverted-question caps
   _    _    _              @to-qwerty     _    _    _
@@ -196,5 +196,4 @@
   _ _ _ _ _ _ _ _ _ _ _ _
   _ _ _ _ _ _ _
 )
-
 
