@@ -1,3 +1,6 @@
 linux/*.sh text eol=lf
 linux/*.kbd text eol=lf
 linux/systemd/*.service text eol=lf
+test/virtualbox/*.tf text eol=lf
+test/virtualbox/*.yaml text eol=lf
+test/virtualbox/*.md text eol=lf

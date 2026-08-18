@@ -1,0 +1,48 @@
+#cloud-config
+
+hostname: kanata-lubuntu
+timezone: America/Bogota
+
+users:
+  - default
+  - name: kanata
+    gecos: Kanata Test
+    groups: [adm, sudo, input]
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: true
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - lubuntu-desktop-minimal
+  - sddm
+  - openssh-server
+  - curl
+  - git
+  - unzip
+  - virtualbox-guest-utils
+  - virtualbox-guest-x11
+
+write_files:
+  - path: /etc/sddm.conf.d/50-kanata-autologin.conf
+    permissions: "0644"
+    content: |
+      [Autologin]
+      User=kanata
+      Session=Lubuntu
+
+runcmd:
+  - systemctl enable ssh.service
+  - systemctl enable sddm.service
+  - systemctl set-default graphical.target
+  - usermod --append --groups vboxsf kanata
+
+final_message: "Lubuntu provisioning completed after $UPTIME seconds."
+
+power_state:
+  mode: reboot
+  message: Rebooting into Lubuntu after cloud-init provisioning
+  timeout: 30
+  condition: true
