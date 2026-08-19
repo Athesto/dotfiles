@@ -1,1 +1,1 @@
-/Users/gustavomejia/.vimrc
+./v1/.vimrc
