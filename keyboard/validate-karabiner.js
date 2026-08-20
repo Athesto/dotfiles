@@ -8,6 +8,20 @@ var generated = childProcess.execFileSync(process.execPath, [generator], {
 });
 
 var configuration = JSON.parse(generated);
+var EXPECTED_CAPS_LOCK_HOLD_MS = 200;
+var LAYOUT_QWERTY = 0;
+var LAYOUT_COLEMAK_DH = 1;
+var versionMatch = configuration.title.match(
+  /^Athesto Keyboard — (\d{4}\.\d{2}\.\d{2}(?:\.\d+)?)$/
+);
+
+assert(versionMatch, "Configuration title must contain a CalVer version");
+
+var version = versionMatch[1];
+
+function createRuleDescription(name) {
+  return name + " — " + version;
+}
 
 function assert(condition, message) {
   if (!condition) {
@@ -20,7 +34,7 @@ function findRule(description) {
   var i;
 
   for (i = 0; i < rules.length; i += 1) {
-    if (rules[i].description === description) {
+    if (rules[i].description === createRuleDescription(description)) {
       return rules[i];
     }
   }
@@ -50,7 +64,7 @@ function validateLayer(rule, layer) {
   );
 
   assert(
-    rightShift.to[0].hold_down_milliseconds === 200 &&
+    rightShift.to[0].hold_down_milliseconds === EXPECTED_CAPS_LOCK_HOLD_MS &&
       rightShift.to[1].key_code === "vk_none",
     rule.description + " has an invalid Caps Lock output"
   );
@@ -83,8 +97,8 @@ function validateLayer(rule, layer) {
 
   assert(
     toggles.length === 2 &&
-      toggles[0].to[0].set_variable.value === 1 &&
-      toggles[1].to[0].set_variable.value === 0,
+      toggles[0].to[0].set_variable.value === LAYOUT_COLEMAK_DH &&
+      toggles[1].to[0].set_variable.value === LAYOUT_QWERTY,
     rule.description + " must contain the Colemak toggle"
   );
 }
@@ -92,6 +106,13 @@ function validateLayer(rule, layer) {
 assert(
   configuration.rules.length === 6,
   "Expected six independent Karabiner rules"
+);
+
+assert(
+  configuration.rules.every(function (rule) {
+    return rule.description.slice(-(version.length + 3)) === " — " + version;
+  }),
+  "Every Karabiner rule must expose the configuration version"
 );
 
 var rightCommandRule = findRule("Right Command as Right Option");
@@ -165,7 +186,7 @@ var legacyVimN = findManipulators(legacyVimRule, "n");
 assert(
   legacyVimN.length === 1 &&
     legacyVimN[0].to[0].key_code === "n" &&
-    legacyVimN[0].to[0].modifiers[0] === "left_option",
+    legacyVimN[0].to[0].modifiers[0] === "right_option",
   "Legacy Vim N must produce enye with US-AltGr-Intl"
 );
 
@@ -181,7 +202,7 @@ assert(
   abcEnye.length === 2 &&
     abcEnye[0].from.modifiers.mandatory[0] === "shift" &&
     abcEnye[0].to[0].key_code === "n" &&
-    abcEnye[0].to[0].modifiers[0] === "left_option" &&
+    abcEnye[0].to[0].modifiers[0] === "right_option" &&
     !abcEnye[1].from.modifiers,
   "ABC Standard must prioritize the tilde dead key before ñ"
 );
@@ -189,7 +210,7 @@ assert(
 assert(
   abcAccent.length === 2 &&
     abcAccent[0].to[0].key_code === "grave_accent_and_tilde" &&
-    abcAccent[0].to[0].modifiers[0] === "left_option" &&
+    abcAccent[0].to[0].modifiers[0] === "right_option" &&
     abcAccent[1].to[0].key_code === "e",
   "ABC Standard must emit grave and acute dead keys"
 );
@@ -198,7 +219,7 @@ assert(
   abcDiaeresis.length === 2 &&
     abcDiaeresis[0].from.modifiers.mandatory[0] === "shift" &&
     abcDiaeresis[0].to[0].key_code === "u" &&
-    abcDiaeresis[0].to[0].modifiers[0] === "left_option" &&
+    abcDiaeresis[0].to[0].modifiers[0] === "right_option" &&
     abcDiaeresis[1].to[0].key_code === "page_up",
   "ABC Standard must prioritize diaeresis before Page Up"
 );
@@ -206,7 +227,7 @@ assert(
 assert(
   abcQuestion.length === 1 &&
     abcQuestion[0].from.modifiers.mandatory[0] === "shift" &&
-    abcQuestion[0].to[0].modifiers[0] === "left_option" &&
+    abcQuestion[0].to[0].modifiers[0] === "right_option" &&
     abcQuestion[0].to[0].modifiers[1] === "left_shift",
   "Caps+? must emit ¿"
 );
@@ -214,7 +235,7 @@ assert(
 assert(
   abcExclamation.length === 1 &&
     abcExclamation[0].from.modifiers.mandatory[0] === "shift" &&
-    abcExclamation[0].to[0].modifiers[0] === "left_option",
+    abcExclamation[0].to[0].modifiers[0] === "right_option",
   "Caps+! must emit ¡"
 );
 

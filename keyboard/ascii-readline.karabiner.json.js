@@ -1,3 +1,4 @@
+var VERSION = "2026.08.19";
 var ASCII_READLINE_LAYER = "ascii_readline_layer";
 var VIM_HYBRID_LAYER = "vim_hybrid_layer";
 var COLEMAK_DH = "colemak_dh";
@@ -5,6 +6,12 @@ var INPUT_SOURCE_ABC_STANDARD = "abc_standard";
 var INPUT_SOURCE_US_ALTGR_INTL = "us_altgr_intl";
 var LAYOUT_NOTIFICATION = "keyboard_layout";
 var LAYOUT_NOTIFICATION_DURATION_MS = 1000;
+var CAPS_LOCK_HOLD_MS = 200;
+var LAYER_INACTIVE = 0;
+var LAYER_ACTIVE = 1;
+var LAYOUT_QWERTY = 0;
+var LAYOUT_COLEMAK_DH = 1;
+var CHARACTER_OPTION = "right_option";
 
 /* -------------------------------------------------------------------------- */
 /* MAPPINGS                                                                   */
@@ -136,6 +143,10 @@ function variableUnless(name, value) {
   };
 }
 
+function createRuleDescription(name) {
+  return name + " — " + VERSION;
+}
+
 /* -------------------------------------------------------------------------- */
 /* GENERIC HELPERS                                                            */
 /* -------------------------------------------------------------------------- */
@@ -213,7 +224,7 @@ function createMandatoryModifiedMapping(
 
 function createRightCommandAsOptionRule() {
   return {
-    description: "Right Command as Right Option",
+    description: createRuleDescription("Right Command as Right Option"),
 
     manipulators: [
       {
@@ -312,7 +323,7 @@ function createLayerActivator(layer) {
       {
         set_variable: {
           name: layer,
-          value: 1,
+          value: LAYER_ACTIVE,
         },
       },
     ],
@@ -321,7 +332,7 @@ function createLayerActivator(layer) {
       {
         set_variable: {
           name: layer,
-          value: 0,
+          value: LAYER_INACTIVE,
         },
       },
     ],
@@ -348,14 +359,14 @@ function createCapsLockMapping(layer) {
     to: [
       {
         key_code: "caps_lock",
-        hold_down_milliseconds: 200,
+        hold_down_milliseconds: CAPS_LOCK_HOLD_MS,
       },
       {
         key_code: "vk_none",
       },
     ],
 
-    conditions: [variableIf(layer, 1)],
+    conditions: [variableIf(layer, LAYER_ACTIVE)],
   };
 }
 
@@ -374,7 +385,7 @@ function createReverseCapsLockMapping() {
     to: [
       {
         key_code: "caps_lock",
-        hold_down_milliseconds: 200,
+        hold_down_milliseconds: CAPS_LOCK_HOLD_MS,
       },
       {
         key_code: "vk_none",
@@ -394,9 +405,9 @@ function layoutNotification(text) {
 
 function createLayoutToggleMapping(layer, currentValue, nextValue, name) {
   var currentLayoutCondition =
-    currentValue === 1
-      ? variableIf(COLEMAK_DH, 1)
-      : variableUnless(COLEMAK_DH, 1);
+    currentValue === LAYOUT_COLEMAK_DH
+      ? variableIf(COLEMAK_DH, LAYOUT_COLEMAK_DH)
+      : variableUnless(COLEMAK_DH, LAYOUT_COLEMAK_DH);
 
   return {
     type: "basic",
@@ -431,8 +442,18 @@ function createLayoutToggleMapping(layer, currentValue, nextValue, name) {
 
 function createColemakToggleMappings(layer) {
   return [
-    createLayoutToggleMapping(layer, 0, 1, "Colemak-DH"),
-    createLayoutToggleMapping(layer, 1, 0, "QWERTY"),
+    createLayoutToggleMapping(
+      layer,
+      LAYOUT_QWERTY,
+      LAYOUT_COLEMAK_DH,
+      "Colemak-DH"
+    ),
+    createLayoutToggleMapping(
+      layer,
+      LAYOUT_COLEMAK_DH,
+      LAYOUT_QWERTY,
+      "QWERTY"
+    ),
   ];
 }
 
@@ -448,44 +469,44 @@ function createCommonLayerMappings(layer) {
 
 function createABCStandardCharacterMappings(conditions) {
   return [
-    /* Caps+? -> Option+Shift+/ -> ¿ */
+    /* Caps+? -> Right Option+Shift+/ -> ¿ */
     createMandatoryModifiedMapping(
       "slash",
       "slash",
       ["shift"],
-      ["left_option", "left_shift"],
+      [CHARACTER_OPTION, "left_shift"],
       conditions
     ),
 
-    /* Caps+! -> Option+1 -> ¡ */
+    /* Caps+! -> Right Option+1 -> ¡ */
     createMandatoryModifiedMapping(
       "1",
       "1",
       ["shift"],
-      ["left_option"],
+      [CHARACTER_OPTION],
       conditions
     ),
 
-    /* Caps+Shift+N -> Option+N -> tilde dead key */
+    /* Caps+Shift+N -> Right Option+N -> tilde dead key */
     createMandatoryModifiedMapping(
       "n",
       "n",
       ["shift"],
-      ["left_option"],
+      [CHARACTER_OPTION],
       conditions
     ),
 
-    /* Caps+Shift+U -> Option+U -> diaeresis dead key */
+    /* Caps+Shift+U -> Right Option+U -> diaeresis dead key */
     createMandatoryModifiedMapping(
       "u",
       "u",
       ["shift"],
-      ["left_option"],
+      [CHARACTER_OPTION],
       conditions
     ),
 
     /*
-     * Caps+N -> Option+N, N -> ñ
+     * Caps+N -> Right Option+N, N -> ñ
      */
     {
       type: "basic",
@@ -495,7 +516,7 @@ function createABCStandardCharacterMappings(conditions) {
       to: [
         {
           key_code: "n",
-          modifiers: ["left_option"],
+          modifiers: [CHARACTER_OPTION],
         },
         {
           key_code: "n",
@@ -504,12 +525,12 @@ function createABCStandardCharacterMappings(conditions) {
       conditions: conditions,
     },
 
-    /* Caps+Shift+' -> Option+` -> grave dead key */
+    /* Caps+Shift+' -> Right Option+` -> grave dead key */
     createMandatoryModifiedMapping(
       "quote",
       "grave_accent_and_tilde",
       ["shift"],
-      ["left_option"],
+      [CHARACTER_OPTION],
       conditions
     ),
     {
@@ -520,7 +541,7 @@ function createABCStandardCharacterMappings(conditions) {
       to: [
         {
           key_code: "e",
-          modifiers: ["left_option"],
+          modifiers: [CHARACTER_OPTION],
         },
       ],
       conditions: conditions,
@@ -530,8 +551,8 @@ function createABCStandardCharacterMappings(conditions) {
 
 function createUSAltGrIntlCharacterMappings(conditions) {
   return [
-    createModifiedMapping("quote", "quote", ["left_option"], conditions),
-    createModifiedMapping("n", "n", ["left_option"], conditions),
+    createModifiedMapping("quote", "quote", [CHARACTER_OPTION], conditions),
+    createModifiedMapping("n", "n", [CHARACTER_OPTION], conditions),
   ];
 }
 
@@ -573,7 +594,7 @@ function createGraveAccentMapping() {
 function generateFunctionMappings(layer) {
   var manipulators = [];
   var keys = Object.keys(functionMappings);
-  var conditions = [variableIf(layer, 1)];
+  var conditions = [variableIf(layer, LAYER_ACTIVE)];
 
   var i;
   var from;
@@ -622,7 +643,7 @@ function generate60PercentCompatibilityRule() {
   }
 
   return {
-    description: "60% Keyboard Compatibility",
+    description: createRuleDescription("60% Keyboard Compatibility"),
     manipulators: manipulators,
   };
 }
@@ -632,7 +653,7 @@ function generate60PercentCompatibilityRule() {
 /* -------------------------------------------------------------------------- */
 
 function generateAsciiReadlineRule() {
-  var conditions = [variableIf(ASCII_READLINE_LAYER, 1)];
+  var conditions = [variableIf(ASCII_READLINE_LAYER, LAYER_ACTIVE)];
 
   var manipulators = createCommonLayerMappings(ASCII_READLINE_LAYER);
 
@@ -704,7 +725,7 @@ function generateAsciiReadlineRule() {
   );
 
   return {
-    description: "ASCII/Readline Layer",
+    description: createRuleDescription("ASCII/Readline Layer"),
 
     manipulators: manipulators,
   };
@@ -715,7 +736,7 @@ function generateAsciiReadlineRule() {
 /* -------------------------------------------------------------------------- */
 
 function generateVimHybridRule(inputSource) {
-  var conditions = [variableIf(VIM_HYBRID_LAYER, 1)];
+  var conditions = [variableIf(VIM_HYBRID_LAYER, LAYER_ACTIVE)];
 
   var manipulators = createCommonLayerMappings(VIM_HYBRID_LAYER);
 
@@ -817,10 +838,11 @@ function generateVimHybridRule(inputSource) {
   );
 
   return {
-    description:
+    description: createRuleDescription(
       inputSource === INPUT_SOURCE_ABC_STANDARD
         ? "Vim Hybrid Layer - ABC Standard"
-        : "Vim Hybrid Layer - US-AltGr-Intl Legacy",
+        : "Vim Hybrid Layer - US-AltGr-Intl Legacy"
+    ),
 
     manipulators: manipulators,
   };
@@ -842,11 +864,13 @@ function generateColemakDHRule() {
     from = keys[i];
     to = colemakMappings[from];
 
-    manipulators.push(createMapping(from, to, [variableIf(COLEMAK_DH, 1)]));
+    manipulators.push(
+      createMapping(from, to, [variableIf(COLEMAK_DH, LAYOUT_COLEMAK_DH)])
+    );
   }
 
   return {
-    description: "Colemak-DH ANSI",
+    description: createRuleDescription("Colemak-DH ANSI"),
     manipulators: manipulators,
   };
 }
@@ -871,7 +895,7 @@ var colemakDHRule = generateColemakDHRule();
 
 function main() {
   return {
-    title: "Athesto Keyboard",
+    title: "Athesto Keyboard — " + VERSION,
 
     rules: [
       rightCommandAsOptionRule,
