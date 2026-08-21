@@ -54,34 +54,36 @@ The scripts resolve paths relative to their own directory, so the dotfiles
 repository can be located anywhere. The downloaded executable is kept in the
 ignored `windows/runtime/` directory.
 
-It preserves the Vim Hybrid semantics while translating them to native
-Windows editing actions:
+Navigation and deletion emit their corresponding keys directly and preserve
+every incoming modifier. Home and End have their own mnemonic bindings:
 
 ```text
-no modifier → character
-Alt         → word
-Ctrl        → line or document
-Shift       → selection
-Win         → Windows system shortcuts
+Caps+H/J/K/L → arrow keys
+Caps+A       → Home
+Caps+E       → End
+Alt          → preserved
+Ctrl         → preserved
+Shift        → preserved for selection
 ```
 
 Examples:
 
 ```text
 Caps+H             → Left
-Caps+Alt+H         → Ctrl+Left
-Caps+Ctrl+H        → Home
+Caps+Alt+H         → Alt+Left
+Caps+Ctrl+H        → Ctrl+Left
 Caps+Shift+H       → Shift+Left
-Caps+Alt+Shift+H   → Ctrl+Shift+Left
-Caps+Ctrl+Shift+H  → Shift+Home
+Caps+Alt+Shift+H   → Alt+Shift+Left
+Caps+Ctrl+Shift+H  → Ctrl+Shift+Left
+Caps+Ctrl+Alt+H    → Ctrl+Alt+Left
 
 Caps+;             → Backspace
-Caps+Alt+;         → Ctrl+Backspace
-Caps+Ctrl+;        → Shift+Home, Backspace
+Caps+Alt+;         → Alt+Backspace
+Caps+Ctrl+;        → Ctrl+Backspace
 
 Caps+X             → Delete
-Caps+Alt+X         → Ctrl+Delete
-Caps+Ctrl+X        → Shift+End, Delete
+Caps+Alt+X         → Alt+Delete
+Caps+Ctrl+X        → Ctrl+Delete
 
 Caps+Backspace     → Ctrl+Backspace
 Caps+M             → Enter
@@ -178,7 +180,11 @@ Colemak-DH ANSI                               optional
 The ASCII/Readline and Vim Hybrid rules are alternative custom layers. Do not
 enable them together because both use Caps Lock as their activator.
 
-## Custom Layer
+## macOS / Karabiner custom layers
+
+The sections below document the alternative custom-layer rules generated for
+Karabiner-Elements. The Windows and Linux Kanata mappings are documented in
+their platform sections above and in their respective README files.
 
 `Caps Lock` acts as the custom layer modifier.
 
@@ -238,7 +244,11 @@ Caps, then Left Shift
 Left Shift, then Caps
 ```
 
-### ASCII
+### ASCII/Readline rule
+
+This is the optional ASCII/Readline Karabiner rule, not the Vim Hybrid rule.
+In this rule, `Caps+H` intentionally represents the historical `Ctrl+H`
+Backspace control character.
 
 These mappings are based on historical ASCII control characters.
 
@@ -314,7 +324,7 @@ characters. Its exact result depends on the active input source. The Vim
 Hybrid profiles below provide their own explicit ABC and US-AltGr-Intl
 implementations instead.
 
-## Vim Hybrid Layer
+## macOS Vim Hybrid Layer
 
 The Vim Hybrid layer uses `H`, `J`, `K`, and `L` for directional
 navigation. Modifiers change the granularity or extend the movement:

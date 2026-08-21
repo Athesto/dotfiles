@@ -6,14 +6,8 @@
 ;; Caps+RightShift -> Caps Lock
 ;; Right Win       -> Right Alt
 ;;
-;; Vim Hybrid semantics:
-;;   no modifier -> character
-;;   Alt         -> word
-;;   Ctrl        -> line/document
-;;   Shift       -> selection
-;;
-;; The fork actions inspect held modifiers, so Alt/Ctrl/Shift may be pressed
-;; before or after Caps. Alt takes precedence if Alt and Ctrl are both active.
+;; Navigation emits plain arrow keys and preserves incoming modifiers.
+;; Home and End remain available through Caps+A and Caps+E.
 
 (defcfg
   process-unmapped-keys yes
@@ -36,7 +30,7 @@
   to-qwerty (layer-switch qwerty)
   to-colemak (layer-switch colemak)
 
-  ;; Spanish character entry on the standard Windows US layout.
+  ;; Spanish character entry on the standard US layout.
   a-acute (fork (unicode á) (unicode Á) (lsft rsft))
   e-acute (fork (unicode é) (unicode É) (lsft rsft))
   i-acute (fork (unicode í) (unicode Í) (lsft rsft))
@@ -58,56 +52,6 @@
   pageup-diaeresis-c (fork pgup @diaeresis-c (lsft rsft))
   f1-inverted-exclamation (fork f1 (unicode ¡) (lsft rsft))
   slash-inverted-question (fork / (unicode ¿) (lsft rsft))
-
-  ;; Horizontal movement: character / line / word.
-  nav-h (fork
-          (fork left
-                (unmod (lctl rctl lalt ralt rmet) home)
-                (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet) lctl left)
-          (lalt ralt rmet))
-
-  nav-l (fork
-          (fork rght
-                (unmod (lctl rctl lalt ralt rmet) end)
-                (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet) lctl rght)
-          (lalt ralt rmet))
-
-  ;; Vertical movement: line / document / paragraph.
-  nav-j (fork
-          (fork down
-                (unmod (lctl rctl lalt ralt rmet) lctl end)
-                (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet) lctl down)
-          (lalt ralt rmet))
-
-  nav-k (fork
-          (fork up
-                (unmod (lctl rctl lalt ralt rmet) lctl home)
-                (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet) lctl up)
-          (lalt ralt rmet))
-
-  ;; Backward deletion: character / line / word.
-  del-w (fork
-          (fork (unmod (lsft rsft) bspc)
-                (macro
-                  (unmod (lctl rctl lalt ralt rmet lsft rsft) lsft home)
-                  bspc)
-                (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet lsft rsft) lctl bspc)
-          (lalt ralt rmet))
-
-  ;; Forward deletion: character / line / word.
-  del-x (fork
-          (fork (unmod (lsft rsft) del)
-                (macro
-                  (unmod (lctl rctl lalt ralt rmet lsft rsft) lsft end)
-                  del)
-                (lctl rctl))
-          (unmod (lctl rctl lalt ralt rmet lsft rsft) lctl del)
-          (lalt ralt rmet))
 )
 
 ;; QWERTY base. The physical Esc position produces grave/tilde.
@@ -131,9 +75,9 @@
 ;; Vim Hybrid while QWERTY is the base layout.
 (deflayer vim-qwerty
   _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    A-f4 @del-w end  _    _    _    @pageup-diaeresis-q tab _ _ esc _ _
-  _    home prnt pgdn _    _    @nav-h @nav-j @nav-k @nav-l _  @acute-q ret
-  _    _    @del-x _  _    _    @enye-q ret  _    _    @slash-inverted-question caps
+  _    A-f4 bspc end  _    _    _    @pageup-diaeresis-q tab _ _ esc _ _
+  _    home prnt pgdn _    _    left down up rght _  @acute-q ret
+  _    _    del  _  _    _    @enye-q ret  _    _    @slash-inverted-question caps
   _    _    _              @to-colemak    _    _    _
 )
 
@@ -141,9 +85,9 @@
 ;; same physical QWERTY positions; only Space switches back to QWERTY.
 (deflayer vim-colemak
   _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    A-f4 @del-w end  _    _    _    @pageup-diaeresis-c tab _ _ esc _ _
-  _    home prnt pgdn _    _    @nav-h @nav-j @nav-k @nav-l _  @acute-c ret
-  _    _    @del-x _  _    _    @enye-c ret  _    _    @slash-inverted-question caps
+  _    A-f4 bspc end  _    _    _    @pageup-diaeresis-c tab _ _ esc _ _
+  _    home prnt pgdn _    _    left down up rght _  @acute-c ret
+  _    _    del  _  _    _    @enye-c ret  _    _    @slash-inverted-question caps
   _    _    _              @to-qwerty     _    _    _
 )
 
@@ -196,4 +140,3 @@
   _ _ _ _ _ _ _ _ _ _ _ _
   _ _ _ _ _ _ _
 )
-
