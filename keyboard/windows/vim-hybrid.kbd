@@ -1,6 +1,7 @@
 ;; Athesto Keyboard - Windows / Kanata
+;; Version: 2026.08.20.11
 ;;
-;; Caps tap        -> Escape
+;; Caps double tap -> Escape
 ;; Caps hold       -> Vim Hybrid
 ;; Caps+Space      -> QWERTY / Colemak-DH
 ;; Caps+RightShift -> Caps Lock
@@ -29,8 +30,16 @@
 )
 
 (defalias
-  caps-q (tap-hold-press 200 200 esc (layer-while-held vim-qwerty))
-  caps-c (tap-hold-press 200 200 esc (layer-while-held vim-colemak))
+  caps-q (tap-hold-press 200 200 (tap-dance 300 (XX esc)) (layer-while-held vim-qwerty))
+  caps-c (tap-hold-press 200 200 (tap-dance 300 (XX esc)) (layer-while-held vim-colemak))
+
+  ;; Preserve Escape; only Left Shift+Escape produces tilde.
+  escape-tilde (fork esc grv (lsft))
+
+  ;; Match the macOS layer using native Windows actions.
+  screenshot-clipboard M-S-s
+  scroll-up (mwheel-up 50 120)
+  scroll-down (mwheel-down 50 120)
 
   to-qwerty (multi
               (layer-switch qwerty)
@@ -113,9 +122,9 @@
           (lalt ralt rmet))
 )
 
-;; QWERTY base. The physical Esc position produces grave/tilde.
+;; QWERTY base. Escape stays Escape; Left Shift+Escape produces tilde.
 (deflayer qwerty
-  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  @escape-tilde 1  2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
   @caps-q a  s    d    f    g    h    j    k    l    ;    '    ret
   lsft z    x    c    v    b    n    m    ,    .    /    rsft
@@ -124,7 +133,7 @@
 
 ;; Colemak-DH ANSI with Angle Mod.
 (deflayer colemak
-  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  @escape-tilde 1  2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    f    p    b    j    l    u    y    ;    [    ]    \
   @caps-c a  r    s    t    g    m    n    e    i    o    '    ret
   lsft x    c    d    v    z    k    h    ,    .    /    rsft
@@ -133,20 +142,20 @@
 
 ;; Vim Hybrid while QWERTY is the base layout.
 (deflayer vim-qwerty
-  _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    A-f4 @del-w end  _    _    _    @pageup-diaeresis-q tab _ _ esc _ _
-  _    home prnt pgdn _    _    @nav-h @nav-j @nav-k @nav-l _  @acute-q ret
-  _    _    @del-x _  _    _    @enye-q ret  _    _    @slash-inverted-question caps
+  grv  @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
+  _    A-f4 _      end  _    _    _    @pageup-diaeresis-q tab _ _ esc _ _
+  _    home @screenshot-clipboard pgdn _ _ @nav-h @nav-j @nav-k @nav-l @del-w @acute-q ret
+  _    _    @del-x _  _    _    @enye-q ret @scroll-up @scroll-down @slash-inverted-question caps
   _    _    _              @to-colemak    _    _    _
 )
 
 ;; Vim Hybrid while Colemak-DH is the base layout. Navigation remains on the
 ;; same physical QWERTY positions; only Space switches back to QWERTY.
 (deflayer vim-colemak
-  _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    A-f4 @del-w end  _    _    _    @pageup-diaeresis-c tab _ _ esc _ _
-  _    home prnt pgdn _    _    @nav-h @nav-j @nav-k @nav-l _  @acute-c ret
-  _    _    @del-x _  _    _    @enye-c ret  _    _    @slash-inverted-question caps
+  grv  @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
+  _    A-f4 _      end  _    _    _    @pageup-diaeresis-c tab _ _ esc _ _
+  _    home @screenshot-clipboard pgdn _ _ @nav-h @nav-j @nav-k @nav-l @del-w @acute-c ret
+  _    _    @del-x _  _    _    @enye-c ret @scroll-up @scroll-down @slash-inverted-question caps
   _    _    _              @to-qwerty     _    _    _
 )
 

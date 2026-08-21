@@ -3,6 +3,22 @@
 Esta carpeta contiene la configuración de Kanata para Windows y scripts de
 PowerShell para instalar, iniciar, detener y desinstalar el runtime.
 
+Versión de la distribución: `2026.08.20.11`.
+
+La capa utiliza un único perfil **Vim Classic**:
+
+```text
+Caps, Caps       → Escape
+Caps sostenido   → Vim Hybrid
+Caps+H/J/K/L     → ←/↓/↑/→
+Caps+M           → Enter
+Caps+;           → Backspace
+Caps+, / Caps+.  → Scroll arriba / abajo
+Caps+S           → Recorte al portapapeles
+```
+
+El perfil alternativo `Semicolon Enter` de macOS no está incluido en Windows.
+
 Windows debe usar la distribución de teclado **English (United States)**. Los
 caracteres en español se generan desde `vim-hybrid.kbd`, no mediante las dead
 keys de US International.
@@ -141,7 +157,7 @@ capa escribe inmediatamente el modo nuevo en
 muestra el popup sin bloquear Kanata.
 
 El popup es una ventana pequeña sin bordes en la esquina inferior derecha y se
-oculta después de aproximadamente 400 ms. No usa el globo de notificaciones de
+oculta después de aproximadamente dos segundos. No usa el globo de notificaciones de
 Windows porque el sistema impone una duración mínima a esos avisos.
 
 No necesita OverKeys ni un puerto TCP. Las capas temporales `vim-qwerty` y

@@ -43,7 +43,7 @@ function Main {
                 -Layer $layer `
                 -Popup $popup `
                 -Label $popupLabel `
-                -DurationMilliseconds 1500
+                -DurationMilliseconds 2000
         }
     } 
     catch [System.Management.Automation.PipelineStoppedException] {

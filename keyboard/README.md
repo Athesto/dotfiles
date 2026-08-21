@@ -75,16 +75,22 @@ Caps+Shift+H       → Shift+Left
 Caps+Alt+Shift+H   → Ctrl+Shift+Left
 Caps+Ctrl+Shift+H  → Shift+Home
 
-Caps+W             → Backspace
-Caps+Alt+W         → Ctrl+Backspace
-Caps+Ctrl+W        → Shift+Home, Backspace
+Caps+;             → Backspace
+Caps+Alt+;         → Ctrl+Backspace
+Caps+Ctrl+;        → Shift+Home, Backspace
 
 Caps+X             → Delete
 Caps+Alt+X         → Ctrl+Delete
 Caps+Ctrl+X        → Shift+End, Delete
 
 Caps+Backspace     → Ctrl+Backspace
+Caps+M             → Enter
+Caps+, / Caps+.    → Scroll up / down
+Caps+S             → Area capture to clipboard
 ```
+
+Pressing Caps once has no output. Pressing it twice within 300 ms sends
+Escape; holding it continues to activate Vim Hybrid.
 
 The modifier order does not matter. `Right Win` becomes `Right Alt`, while
 the left Windows key keeps its normal system behavior.
@@ -323,7 +329,7 @@ Shift       → selection
 The primary ANSI rows provide this compact view of the layer:
 
 ```text
-CAPS — Vim Classic · 2026.08.20.10
+CAPS — Vim Classic · 2026.08.20.11
 
 Q ·    W ·    E ↦    R ·    T ·    │ Y ·    U ⎗    I ⇥    O ·    P ·    [ ⎋
   A ⇤    S ⎙    D ⎘    F ·    G ·  │ H ←    J ↓    K ↑    L →    ; ⌫    ' ´
