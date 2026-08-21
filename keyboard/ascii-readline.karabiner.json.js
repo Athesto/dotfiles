@@ -1,17 +1,23 @@
-var VERSION = "2026.08.19";
+var VERSION = "2026.08.20.11";
 var ASCII_READLINE_LAYER = "ascii_readline_layer";
 var VIM_HYBRID_LAYER = "vim_hybrid_layer";
 var COLEMAK_DH = "colemak_dh";
+var VIM_NAVIGATION_PROFILE = "vim_navigation_profile";
 var INPUT_SOURCE_ABC_STANDARD = "abc_standard";
 var INPUT_SOURCE_US_ALTGR_INTL = "us_altgr_intl";
 var LAYOUT_NOTIFICATION = "keyboard_layout";
-var LAYOUT_NOTIFICATION_DURATION_MS = 1000;
+var LAYOUT_NOTIFICATION_DURATION_MS = 2000;
 var CAPS_LOCK_HOLD_MS = 200;
+var CAPS_DOUBLE_TAP_DELAY_MS = 300;
+var CAPS_DOUBLE_TAP = "caps_double_tap";
 var LAYER_INACTIVE = 0;
 var LAYER_ACTIVE = 1;
 var LAYOUT_QWERTY = 0;
 var LAYOUT_COLEMAK_DH = 1;
+var PROFILE_VIM_CLASSIC = 0;
+var PROFILE_SEMICOLON_ENTER = 1;
 var CHARACTER_OPTION = "right_option";
+var SCROLL_STEP = 32;
 
 /* -------------------------------------------------------------------------- */
 /* MAPPINGS                                                                   */
@@ -53,16 +59,11 @@ var vimHybridMappings = {
    * ASCII
    */
   i: "tab",
-  m: "return_or_enter",
   open_bracket: "escape",
 
   /*
    * Vim navigation
    */
-  h: "left_arrow",
-  j: "down_arrow",
-  k: "up_arrow",
-  l: "right_arrow",
   u: "page_up",
   d: "page_down",
 
@@ -72,6 +73,31 @@ var vimHybridMappings = {
   a: "home",
   e: "end",
 };
+
+var vimNavigationProfiles = [
+  {
+    name: "Vim Classic",
+    mappings: {
+      h: "left_arrow",
+      j: "down_arrow",
+      k: "up_arrow",
+      l: "right_arrow",
+      semicolon: "delete_or_backspace",
+      m: "return_or_enter",
+    },
+  },
+  {
+    name: "Semicolon Enter",
+    mappings: {
+      h: "left_arrow",
+      j: "down_arrow",
+      k: "up_arrow",
+      l: "right_arrow",
+      semicolon: "return_or_enter",
+      m: "delete_or_backspace",
+    },
+  },
+];
 
 var functionMappings = {
   1: "f1",
@@ -194,6 +220,29 @@ function createModifiedMapping(from, to, modifiers, conditions) {
   };
 }
 
+function createVerticalScrollMapping(from, distance, conditions) {
+  return {
+    type: "basic",
+
+    from: {
+      key_code: from,
+      modifiers: {
+        optional: ["any"],
+      },
+    },
+
+    to: [
+      {
+        mouse_key: {
+          vertical_wheel: distance,
+        },
+      },
+    ],
+
+    conditions: conditions,
+  };
+}
+
 function createMandatoryModifiedMapping(
   from,
   to,
@@ -308,8 +357,8 @@ function createMappingsFromObject(mappings, conditions) {
 /* LAYERS                                                                     */
 /* -------------------------------------------------------------------------- */
 
-function createLayerActivator(layer) {
-  return {
+function createLayerActivator(layer, isSecondTap) {
+  var activator = {
     type: "basic",
 
     from: {
@@ -336,13 +385,55 @@ function createLayerActivator(layer) {
         },
       },
     ],
+  };
 
-    to_if_alone: [
+  if (isSecondTap) {
+    activator.to_if_alone = [
       {
         key_code: "escape",
       },
-    ],
-  };
+      {
+        set_variable: {
+          name: CAPS_DOUBLE_TAP,
+          value: 0,
+        },
+      },
+    ];
+    activator.conditions = [variableIf(CAPS_DOUBLE_TAP, 1)];
+  } else {
+    activator.to_if_alone = [
+      {
+        set_variable: {
+          name: CAPS_DOUBLE_TAP,
+          value: 1,
+        },
+      },
+    ];
+    activator.to_delayed_action = {
+      to_if_invoked: [
+        {
+          set_variable: {
+            name: CAPS_DOUBLE_TAP,
+            value: 0,
+          },
+        },
+      ],
+      to_if_canceled: [
+        {
+          set_variable: {
+            name: CAPS_DOUBLE_TAP,
+            value: 0,
+          },
+        },
+      ],
+    };
+    activator.parameters = {
+      "basic.to_delayed_action_delay_milliseconds": CAPS_DOUBLE_TAP_DELAY_MS,
+    };
+    activator.conditions = [variableUnless(CAPS_DOUBLE_TAP, 1)];
+  }
+
+  return activator;
 }
 
 function createCapsLockMapping(layer) {
@@ -403,7 +494,7 @@ function layoutNotification(text) {
   };
 }
 
-function createLayoutToggleMapping(layer, currentValue, nextValue, name) {
+function createColemakToggleMapping(layer, currentValue, nextValue, name) {
   var currentLayoutCondition =
     currentValue === LAYOUT_COLEMAK_DH
       ? variableIf(COLEMAK_DH, LAYOUT_COLEMAK_DH)
@@ -414,6 +505,9 @@ function createLayoutToggleMapping(layer, currentValue, nextValue, name) {
 
     from: {
       key_code: "spacebar",
+      modifiers: {
+        mandatory: ["shift"],
+      },
     },
 
     to: [
@@ -442,13 +536,13 @@ function createLayoutToggleMapping(layer, currentValue, nextValue, name) {
 
 function createColemakToggleMappings(layer) {
   return [
-    createLayoutToggleMapping(
+    createColemakToggleMapping(
       layer,
       LAYOUT_QWERTY,
       LAYOUT_COLEMAK_DH,
       "Colemak-DH"
     ),
-    createLayoutToggleMapping(
+    createColemakToggleMapping(
       layer,
       LAYOUT_COLEMAK_DH,
       LAYOUT_QWERTY,
@@ -457,11 +551,109 @@ function createColemakToggleMappings(layer) {
   ];
 }
 
+function createVimProfileToggleMapping(currentValue, nextValue, name) {
+  var currentProfileConditions = createVimProfileConditions(currentValue);
+
+  return {
+    type: "basic",
+
+    from: {
+      key_code: "spacebar",
+    },
+
+    to: [
+      {
+        set_variable: {
+          name: VIM_NAVIGATION_PROFILE,
+          value: nextValue,
+        },
+      },
+      layoutNotification(name),
+    ],
+
+    to_delayed_action: {
+      to_if_invoked: [layoutNotification("")],
+      to_if_canceled: [layoutNotification("")],
+    },
+
+    parameters: {
+      "basic.to_delayed_action_delay_milliseconds":
+        LAYOUT_NOTIFICATION_DURATION_MS,
+    },
+
+    conditions: [variableIf(VIM_HYBRID_LAYER, LAYER_ACTIVE)].concat(
+      currentProfileConditions
+    ),
+  };
+}
+
+function createVimProfileConditions(profile) {
+  var conditions = [];
+  var i;
+
+  if (profile === PROFILE_VIM_CLASSIC) {
+    for (i = 1; i < vimNavigationProfiles.length; i += 1) {
+      conditions.push(variableUnless(VIM_NAVIGATION_PROFILE, i));
+    }
+
+    return conditions;
+  }
+
+  return [variableIf(VIM_NAVIGATION_PROFILE, profile)];
+}
+
+function createVimProfileToggleMappings() {
+  var mappings = [];
+  var i;
+  var nextProfile;
+
+  for (i = 0; i < vimNavigationProfiles.length; i += 1) {
+    nextProfile = (i + 1) % vimNavigationProfiles.length;
+    mappings.push(
+      createVimProfileToggleMapping(
+        i,
+        nextProfile,
+        vimNavigationProfiles[nextProfile].name
+      )
+    );
+  }
+
+  return mappings;
+}
+
+function createVimProfileMappings() {
+  var manipulators = [];
+  var i;
+
+  for (i = 0; i < vimNavigationProfiles.length; i += 1) {
+    manipulators = manipulators.concat(
+      createMappingsFromObject(
+        vimNavigationProfiles[i].mappings,
+        [variableIf(VIM_HYBRID_LAYER, LAYER_ACTIVE)].concat(
+          createVimProfileConditions(i)
+        )
+      )
+    );
+  }
+
+  return manipulators;
+}
+
 function createCommonLayerMappings(layer) {
+  var conditions = [variableIf(layer, LAYER_ACTIVE)];
   var manipulators = [
     createReverseCapsLockMapping(),
-    createLayerActivator(layer),
+    createLayerActivator(layer, true),
+    createLayerActivator(layer, false),
     createCapsLockMapping(layer),
+    createMandatoryModifiedMapping(
+      "escape",
+      "grave_accent_and_tilde",
+      ["command"],
+      ["left_command"],
+      conditions
+    ),
+    createMapping("escape", "grave_accent_and_tilde", conditions),
   ];
 
   return manipulators.concat(createColemakToggleMappings(layer));
@@ -568,29 +760,6 @@ function createInputSourceCharacterMappings(inputSource, conditions) {
 /* 60% KEYBOARD                                                               */
 /* -------------------------------------------------------------------------- */
 
-function createGraveAccentMapping() {
-  return {
-    type: "basic",
-
-    /*
-     * Esc       -> `
-     * Shift+Esc -> ~
-     */
-    from: {
-      key_code: "escape",
-      modifiers: {
-        optional: ["any"],
-      },
-    },
-
-    to: [
-      {
-        key_code: "grave_accent_and_tilde",
-      },
-    ],
-  };
-}
-
 function generateFunctionMappings(layer) {
   var manipulators = [];
   var keys = Object.keys(functionMappings);
@@ -629,15 +798,30 @@ function generateFunctionMappings(layer) {
 }
 
 function generate60PercentCompatibilityRule() {
-  var manipulators = [createGraveAccentMapping()];
+  var manipulators = [
+    createMandatoryModifiedMapping(
+      "escape",
+      "grave_accent_and_tilde",
+      ["left_shift"],
+      ["left_shift"],
+      []
+    ),
+  ];
   var layers = [ASCII_READLINE_LAYER, VIM_HYBRID_LAYER];
   var i;
   var conditions;
 
   for (i = 0; i < layers.length; i += 1) {
-    conditions = [variableIf(layers[i], 1)];
+    conditions = [variableIf(layers[i], LAYER_ACTIVE)];
 
-    manipulators.push(createMapping("s", "print_screen", conditions));
+    manipulators.push(
+      createModifiedMapping(
+        "s",
+        "4",
+        ["left_control", "left_command", "left_shift"],
+        conditions
+      )
+    );
 
     manipulators = manipulators.concat(generateFunctionMappings(layers[i]));
   }
@@ -740,6 +924,8 @@ function generateVimHybridRule(inputSource) {
 
   var manipulators = createCommonLayerMappings(VIM_HYBRID_LAYER);
 
+  manipulators = manipulators.concat(createVimProfileToggleMappings());
+
   /* Specific shifted dead keys must precede inherited base mappings. */
   manipulators = manipulators.concat(
     createInputSourceCharacterMappings(inputSource, conditions)
@@ -749,26 +935,18 @@ function generateVimHybridRule(inputSource) {
     createMappingsFromObject(vimHybridMappings, conditions)
   );
 
+  manipulators = manipulators.concat(createVimProfileMappings());
+
   /*
    * Symmetric deletion
    *
-   * W          -> character backward
+   * Semicolon  -> character backward
    * X          -> character forward
-   * Option+W   -> word backward
+   * Option+;   -> word backward
    * Option+X   -> word forward
-   * Command+W  -> beginning of line
+   * Command+;  -> beginning of line
    * Command+X  -> end of line
    */
-
-  manipulators.push(
-    createMandatoryModifiedMapping(
-      "w",
-      "delete_or_backspace",
-      ["option"],
-      ["left_option"],
-      conditions
-    )
-  );
 
   manipulators.push(
     createMandatoryModifiedMapping(
@@ -776,28 +954,6 @@ function generateVimHybridRule(inputSource) {
       "delete_forward",
       ["option"],
       ["left_option"],
-      conditions
-    )
-  );
-
-  /*
-   * Cmd+W / Cmd+X
-   *
-   * Delete to the beginning or end of line.
-   */
-  manipulators.push(
-    createMandatorySequenceMapping(
-      "w",
-      ["command"],
-      [
-        {
-          key_code: "home",
-          modifiers: ["left_shift"],
-        },
-        {
-          key_code: "delete_or_backspace",
-        },
-      ],
       conditions
     )
   );
@@ -819,9 +975,15 @@ function generateVimHybridRule(inputSource) {
     )
   );
 
-  manipulators.push(createMapping("w", "delete_or_backspace", conditions));
-
   manipulators.push(createMapping("x", "delete_forward", conditions));
+
+  manipulators.push(
+    createVerticalScrollMapping("comma", -SCROLL_STEP, conditions)
+  );
+
+  manipulators.push(
+    createVerticalScrollMapping("period", SCROLL_STEP, conditions)
+  );
 
   /*
    * Caps+Backspace -> Option+Backspace

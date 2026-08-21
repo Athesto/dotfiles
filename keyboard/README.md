@@ -176,13 +176,13 @@ enable them together because both use Caps Lock as their activator.
 
 `Caps Lock` acts as the custom layer modifier.
 
-When pressed alone:
+When held, it activates the custom layer. One tap alone has no output; two taps
+within 300 ms send Escape. This keeps accidental layer taps harmless while
+making Escape available without leaving the home row.
 
 ```text
-Caps → Escape
+Caps, Caps → Escape
 ```
-
-When held, it activates the custom layer.
 
 Caps Lock remains available without sacrificing either Shift key:
 
@@ -216,11 +216,11 @@ Option changes the editing granularity from characters to words, while
 Command changes it to lines:
 
 ```text
-Caps+W          → delete previous character
+Caps+;          → delete previous character
 Caps+X          → delete next character
-Caps+Option+W   → delete previous word
+Caps+Option+;   → delete previous word
 Caps+Option+X   → delete next word
-Caps+Cmd+W      → delete to beginning of line
+Caps+Cmd+;      → delete to beginning of line
 Caps+Cmd+X      → delete to end of line
 ```
 
@@ -320,22 +320,59 @@ Command     → line
 Shift       → selection
 ```
 
+The primary ANSI rows provide this compact view of the layer:
+
+```text
+CAPS — Vim Classic · 2026.08.20.10
+
+Q ·    W ·    E ↦    R ·    T ·    │ Y ·    U ⎗    I ⇥    O ·    P ·    [ ⎋
+  A ⇤    S ⎙    D ⎘    F ·    G ·  │ H ←    J ↓    K ↑    L →    ; ⌫    ' ´
+    Z ·    X ⌦    C ·    V ·    B ·│ N ñ    M ↵    , ⇞    . ⇟    / ¿
+```
+
+```text
+⇤ Home          ↦ End
+⎗ Page Up       ⎘ Page Down
+⇞ Scroll Up     ⇟ Scroll Down
+⇥ Tab           ↵ Enter
+⌫ Backspace     ⌦ Delete
+⎋ Escape        ⎙ Screen Capture
+```
+
+The number row remains available as `Caps+1…=` → `F1…F12` when the
+independent 60% compatibility rule is enabled.
+
+### Navigation profiles
+
+`Caps+Space` alterna entre dos perfiles. Karabiner muestra el perfil activo
+durante dos segundos después de cada cambio:
+
+```text
+Vim Classic                 Semicolon Enter
+H ←  J ↓  K ↑  L →  ; ⌫     H ←  J ↓  K ↑  L →  ; ↵
+     M ↵                          M ⌫
+```
+
+`Vim Classic` es el perfil predeterminado. Ambos conservan `HJKL`; solamente
+intercambian las posiciones de Enter y Backspace.
+
 ### Basic Keys
 
 | Binding  | Output |
 | -------- | ------ |
 | `Caps+I` | Tab    |
-| `Caps+M` | Enter  |
 | `Caps+[` | Escape |
+
+Enter está en `Caps+M` con `Vim Classic` y en `Caps+;` con `Semicolon Enter`.
 
 ### Navigation
 
 | Binding          | Output            |
 | ---------------- | ----------------- |
 | `Caps+H`         | Left              |
-| `Caps+J`         | Down              |
 | `Caps+K`         | Up                |
 | `Caps+L`         | Right             |
+| `Caps+J`         | Down              |
 | `Caps+A`         | Home              |
 | `Caps+E`         | End               |
 | `Caps+U`         | Page Up           |
@@ -358,22 +395,25 @@ Caps+Shift+Command+L → select to end of line
 
 | Binding          | Output                                    |
 | ---------------- | ----------------------------------------- |
-| `Caps+W`         | Delete previous character                 |
+| `Caps+;`         | Delete previous character (`Vim Classic`) |
+| `Caps+M`         | Delete previous character (`Semicolon Enter`) |
 | `Caps+X`         | Delete next character                     |
-| `Caps+Option+W`  | Delete previous word                      |
+| `Caps+Option+;`  | Delete previous word                      |
 | `Caps+Option+X`  | Delete next word                          |
-| `Caps+Command+W` | Delete to beginning of line               |
+| `Caps+Command+;` | Delete to beginning of line               |
 | `Caps+Command+X` | Delete to end of line                     |
 | `Caps+Backspace` | Delete previous word (`Option+Backspace`) |
 
-`B` and `F` intentionally have no mappings in this layer. Word movement
-is provided by `Option+H` and `Option+L` instead.
+`B` and `F` intentionally have no mappings in this layer. In both profiles,
+word movement is provided by `Option+H` and `Option+L`.
 
 ### Other Keys
 
-| Binding  | Output                                         |
-| -------- | ---------------------------------------------- |
-| `Caps+S` | Print Screen when 60% compatibility is enabled |
+| Binding      | Output                                         |
+| ------------ | ---------------------------------------------- |
+| `Caps+S`     | Capture an area to the clipboard              |
+| `Caps+,`     | Scroll up                                      |
+| `Caps+.`     | Scroll down                                    |
 
 Character entry depends on the selected macOS input-source profile:
 
@@ -411,38 +451,39 @@ missing or inconvenient on a compact keyboard. It works with either custom
 layer and can be disabled without changing Vim Hybrid, ASCII/Readline, or
 Colemak-DH.
 
-On a keyboard with a physical grave/tilde key and function row, leave this
-rule disabled so Escape keeps its normal behavior.
+On a keyboard with a physical grave/tilde key and function row, this rule can
+remain disabled.
 
 ### Grave Accent and Tilde
 
-The physical `Esc` position is used to recover the ANSI grave/tilde key:
+Escape keeps its original behavior. The grave/tilde key is available through
+the custom layer. The layer can also reproduce the macOS window-switching
+shortcut without taking over `Command+Escape`:
 
 ```text
-Esc       → `
-Shift+Esc → ~
-Cmd+Esc   → Cmd+`
+Esc            → Escape
+Left Shift+Esc → ~
+Right Shift+Esc → Escape
+Caps+Esc       → `
+Caps+Shift+Esc → ~
+Cmd+Esc        → Cmd+Esc (cancels Cmd+Tab)
+Caps+Cmd+Esc   → Cmd+`
 ```
 
-All modifiers are preserved by this remap, so the standard macOS
-`Command+grave` window-switching shortcut remains available from the physical
-Escape position.
-
-Escape itself remains readily available through:
+The alternative layer binding remains available as well:
 
 ```text
-Caps      → Escape
-Caps+[    → Escape
+Caps+[ → Escape
 ```
 
-### Print Screen
+### Screenshot
 
 ```text
-Caps+S → Print Screen
+Caps+S → Control+Command+Shift+4
 ```
 
-This emits the actual Print Screen key rather than a platform-specific
-screenshot shortcut.
+This opens the macOS area selector and copies the result directly to the
+clipboard instead of creating a file.
 
 ### Function Keys
 
@@ -489,17 +530,18 @@ A R S T G   M N E I O
  X C D V Z   K H , . /
 ```
 
-Colemak-DH can be enabled and disabled from either custom layer:
+In the Karabiner configuration, Colemak-DH can be enabled and disabled from
+either custom layer:
 
 ```text
-Caps+Space → QWERTY ⇄ Colemak-DH
+Caps+Shift+Space → QWERTY ⇄ Colemak-DH
 ```
 
 The toggle changes the internal `colemak_dh` variable between `0` for
 QWERTY and `1` for Colemak-DH.
 
 On macOS, Karabiner displays a native `QWERTY` or `Colemak-DH` notification
-for 1000 ms after the change. The message is generated by Karabiner itself, so
+for 2000 ms after the change. The message is generated by Karabiner itself, so
 it does not require a background script or create an additional Dock icon.
 
 Colemak-DH and the custom layer are implemented independently.

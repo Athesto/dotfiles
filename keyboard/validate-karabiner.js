@@ -9,8 +9,13 @@ var generated = childProcess.execFileSync(process.execPath, [generator], {
 
 var configuration = JSON.parse(generated);
 var EXPECTED_CAPS_LOCK_HOLD_MS = 200;
+var EXPECTED_CAPS_DOUBLE_TAP_DELAY_MS = 300;
+var EXPECTED_SCROLL_STEP = 32;
+var EXPECTED_NOTIFICATION_DURATION_MS = 2000;
 var LAYOUT_QWERTY = 0;
 var LAYOUT_COLEMAK_DH = 1;
+var PROFILE_VIM_CLASSIC = 0;
+var PROFILE_SEMICOLON_ENTER = 1;
 var versionMatch = configuration.title.match(
   /^Athesto Keyboard — (\d{4}\.\d{2}\.\d{2}(?:\.\d+)?)$/
 );
@@ -53,8 +58,16 @@ function validateLayer(rule, layer) {
   var rightShift = findManipulators(rule, "right_shift")[0];
 
   var reverseCapsIndex = -1;
-  var activatorIndex = -1;
-  var toggles = findManipulators(rule, "spacebar");
+  var activatorIndexes = [];
+  var activators = [];
+  var spaceMappings = findManipulators(rule, "spacebar");
+  var toggles = spaceMappings.filter(function (mapping) {
+    return (
+      mapping.from.modifiers &&
+      mapping.from.modifiers.mandatory &&
+      mapping.from.modifiers.mandatory[0] === "shift"
+    );
+  });
   var i;
   var manipulator;
 
@@ -85,14 +98,28 @@ function validateLayer(rule, layer) {
       manipulator.to[0].set_variable &&
       manipulator.to[0].set_variable.name === layer
     ) {
-      activatorIndex = i;
+      activatorIndexes.push(i);
+      activators.push(manipulator);
     }
   }
 
   assert(
-    reverseCapsIndex >= 0 && reverseCapsIndex < activatorIndex,
+    reverseCapsIndex >= 0 && reverseCapsIndex < activatorIndexes[0],
     rule.description +
       " must handle Right Shift before the generic Caps activator"
+  );
+
+  assert(activators.length === 2, rule.description + " needs two Caps states");
+
+  assert(
+    activators[0].conditions[0].type === "variable_if" &&
+      activators[0].to_if_alone[0].key_code === "escape" &&
+      activators[1].conditions[0].type === "variable_unless" &&
+      activators[1].to_if_alone[0].set_variable.name === "caps_double_tap" &&
+      activators[1].parameters[
+        "basic.to_delayed_action_delay_milliseconds"
+      ] === EXPECTED_CAPS_DOUBLE_TAP_DELAY_MS,
+    rule.description + " must emit Escape only on a double tap of Caps"
   );
 
   assert(
@@ -128,41 +155,103 @@ assert(
   "Right Command must map to Right Option"
 );
 
-var grave = findManipulators(sixtyPercentRule, "escape")[0];
-
 assert(
-  grave.from.modifiers.optional[0] === "any",
-  "60% Escape mapping must preserve modifiers"
+  findManipulators(sixtyPercentRule, "escape").length === 1 &&
+    findManipulators(sixtyPercentRule, "escape")[0].from.modifiers
+      .mandatory[0] === "left_shift" &&
+    findManipulators(sixtyPercentRule, "escape")[0].to[0].key_code ===
+      "grave_accent_and_tilde" &&
+    findManipulators(sixtyPercentRule, "escape")[0].to[0].modifiers[0] ===
+      "left_shift",
+  "60% Left Shift+Escape must emit tilde without capturing other Escapes"
 );
 
+var asciiEscape = findManipulators(asciiRule, "escape");
+var vimEscape = findManipulators(vimRule, "escape");
+
 assert(
-  findManipulators(asciiRule, "escape").length === 0 &&
-    findManipulators(vimRule, "escape").length === 0,
-  "Layer rules must not contain the optional 60% Escape mapping"
+  asciiEscape.length === 2 &&
+    asciiEscape[0].from.modifiers.mandatory[0] === "command" &&
+    asciiEscape[0].to[0].key_code === "grave_accent_and_tilde" &&
+    asciiEscape[0].to[0].modifiers[0] === "left_command" &&
+    asciiEscape[1].to[0].key_code === "grave_accent_and_tilde" &&
+    vimEscape.length === 2 &&
+    vimEscape[0].from.modifiers.mandatory[0] === "command" &&
+    vimEscape[0].to[0].key_code === "grave_accent_and_tilde" &&
+    vimEscape[0].to[0].modifiers[0] === "left_command" &&
+    vimEscape[1].to[0].key_code ===
+      "grave_accent_and_tilde" &&
+    !vimEscape[1].from.modifiers.mandatory,
+  "Layer Escape mappings must prioritize Caps+Command+Escape"
 );
 
 validateLayer(asciiRule, "ascii_readline_layer");
 validateLayer(vimRule, "vim_hybrid_layer");
 validateLayer(legacyVimRule, "vim_hybrid_layer");
 
-var vimW = findManipulators(vimRule, "w");
+var vimProfileToggles = findManipulators(vimRule, "spacebar").filter(function (
+  mapping
+) {
+  return !mapping.from.modifiers;
+});
+
+assert(
+  vimProfileToggles.length === 2 &&
+    vimProfileToggles[0].to[0].set_variable.name ===
+      "vim_navigation_profile" &&
+    vimProfileToggles[0].to[0].set_variable.value === PROFILE_SEMICOLON_ENTER &&
+    vimProfileToggles[1].to[0].set_variable.value === PROFILE_VIM_CLASSIC &&
+    vimProfileToggles.every(function (mapping) {
+      return (
+        mapping.parameters["basic.to_delayed_action_delay_milliseconds"] ===
+        EXPECTED_NOTIFICATION_DURATION_MS
+      );
+    }),
+  "Vim Caps+Space must cycle through all navigation profiles"
+);
+
+var vimH = findManipulators(vimRule, "h");
+var vimJ = findManipulators(vimRule, "j");
+var vimK = findManipulators(vimRule, "k");
+var vimL = findManipulators(vimRule, "l");
+var vimM = findManipulators(vimRule, "m");
 var vimX = findManipulators(vimRule, "x");
 var vimBackspace = findManipulators(vimRule, "delete_or_backspace");
+var vimComma = findManipulators(vimRule, "comma");
+var vimPeriod = findManipulators(vimRule, "period");
+var vimSemicolon = findManipulators(vimRule, "semicolon");
 
 assert(
-  vimW.length === 3 && vimX.length === 3,
-  "Vim W and X must support character, word, and line deletion"
+  vimJ.length === 2 &&
+    vimJ[0].to[0].key_code === "down_arrow" &&
+    vimJ[1].to[0].key_code === "down_arrow" &&
+    vimM.length === 2 &&
+    vimM[0].to[0].key_code === "return_or_enter" &&
+    vimM[1].to[0].key_code === "delete_or_backspace",
+  "Vim J and M profile mappings are invalid"
 );
 
 assert(
-  vimW[0].from.modifiers.mandatory[0] === "option" &&
-    vimW[1].from.modifiers.mandatory[0] === "command" &&
-    vimW[2].from.modifiers.optional[0] === "any",
-  "Vim W deletion priority is invalid"
+  vimH.length === 2 &&
+    vimH[0].to[0].key_code === "left_arrow" &&
+    vimH[1].to[0].key_code === "left_arrow" &&
+    vimK.length === 2 &&
+    vimK[0].to[0].key_code === "up_arrow" &&
+    vimK[1].to[0].key_code === "up_arrow" &&
+    vimL.length === 2 &&
+    vimL[0].to[0].key_code === "right_arrow" &&
+    vimL[1].to[0].key_code === "right_arrow",
+  "Vim H/K/L profile mappings are invalid"
 );
 
 assert(
-  vimX[0].from.modifiers.mandatory[0] === "option" &&
+  findManipulators(vimRule, "w").length === 0,
+  "Vim W must remain unassigned after moving backward deletion to Semicolon"
+);
+
+assert(
+  vimX.length === 3 &&
+    vimX[0].from.modifiers.mandatory[0] === "option" &&
     vimX[1].from.modifiers.mandatory[0] === "command" &&
     vimX[2].from.modifiers.optional[0] === "any",
   "Vim X deletion priority is invalid"
@@ -173,6 +262,21 @@ assert(
     vimBackspace[0].to[0].key_code === "delete_or_backspace" &&
     vimBackspace[0].to[0].modifiers[0] === "left_option",
   "Caps+Backspace must emit Option+Backspace"
+);
+
+assert(
+  vimComma.length === 1 &&
+    vimComma[0].to[0].mouse_key.vertical_wheel === -EXPECTED_SCROLL_STEP &&
+    vimPeriod.length === 1 &&
+    vimPeriod[0].to[0].mouse_key.vertical_wheel === EXPECTED_SCROLL_STEP,
+  "Caps+Comma and Caps+Period must scroll up and down"
+);
+
+assert(
+  vimSemicolon.length === 2 &&
+    vimSemicolon[0].to[0].key_code === "delete_or_backspace" &&
+    vimSemicolon[1].to[0].key_code === "return_or_enter",
+  "Vim Semicolon profile mappings are invalid"
 );
 
 assert(
@@ -240,6 +344,19 @@ assert(
 );
 
 var sixtyPercentF1 = findManipulators(sixtyPercentRule, "1");
+var sixtyPercentScreenshot = findManipulators(sixtyPercentRule, "s");
+
+assert(
+  sixtyPercentScreenshot.length === 2 &&
+    sixtyPercentScreenshot.every(function (mapping) {
+      return (
+        mapping.to[0].key_code === "4" &&
+        mapping.to[0].modifiers.join(",") ===
+          "left_control,left_command,left_shift"
+      );
+    }),
+  "Caps+S must copy a selected-area screenshot to the clipboard"
+);
 
 assert(
   sixtyPercentF1.length === 2 &&
