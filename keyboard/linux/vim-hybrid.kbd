@@ -1,7 +1,8 @@
 ;; Athesto Keyboard - Linux / Kanata
+;; Version: 2026.08.22.2
 ;;
-;; Caps tap        -> Escape
-;; Caps hold       -> Vim Hybrid
+;; Caps double tap -> Escape
+;; Caps hold       -> Caps Utility Layer
 ;; Caps+Space      -> QWERTY / Colemak-DH
 ;; Caps+RightShift -> Caps Lock
 ;; Right Win       -> Right Alt
@@ -24,8 +25,10 @@
 )
 
 (defalias
-  caps-q (tap-hold-press 200 200 esc (layer-while-held vim-qwerty))
-  caps-c (tap-hold-press 200 200 esc (layer-while-held vim-colemak))
+  caps-q (tap-hold-press 200 200 (tap-dance 300 (XX esc)) (layer-while-held vim-qwerty))
+  caps-c (tap-hold-press 200 200 (tap-dance 300 (XX esc)) (layer-while-held vim-colemak))
+
+  escape-tilde (fork esc grv (lsft))
 
   to-qwerty (layer-switch qwerty)
   to-colemak (layer-switch colemak)
@@ -51,12 +54,12 @@
   pageup-diaeresis-q (fork pgup @diaeresis-q (lsft rsft))
   pageup-diaeresis-c (fork pgup @diaeresis-c (lsft rsft))
   f1-inverted-exclamation (fork f1 (unicode ¡) (lsft rsft))
-  slash-inverted-question (fork / (unicode ¿) (lsft rsft))
+  slash-delete-question (fork del (unicode ¿) (lsft rsft))
 )
 
-;; QWERTY base. The physical Esc position produces grave/tilde.
+;; QWERTY base. Escape stays Escape; Left Shift+Escape produces tilde.
 (deflayer qwerty
-  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  @escape-tilde 1  2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
   @caps-q a  s    d    f    g    h    j    k    l    ;    '    ret
   lsft z    x    c    v    b    n    m    ,    .    /    rsft
@@ -65,29 +68,29 @@
 
 ;; Colemak-DH ANSI with Angle Mod.
 (deflayer colemak
-  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  @escape-tilde 1  2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    f    p    b    j    l    u    y    ;    [    ]    \
   @caps-c a  r    s    t    g    m    n    e    i    o    '    ret
   lsft x    c    d    v    z    k    h    ,    .    /    rsft
   lctl lmet lalt           spc            ralt ralt rctl
 )
 
-;; Vim Hybrid while QWERTY is the base layout.
+;; Caps Utility Layer while QWERTY is the base layout.
 (deflayer vim-qwerty
-  _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    A-f4 bspc end  _    _    _    @pageup-diaeresis-q tab _ _ esc _ _
-  _    home prnt pgdn _    _    left down up rght _  @acute-q ret
-  _    _    del  _  _    _    @enye-q ret  _    _    @slash-inverted-question caps
+  grv  @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
+  _    A-f4 C-w  end  C-r  C-t  _    @pageup-diaeresis-q tab _ _ esc _ _
+  _    home prnt pgdn C-f esc left down up rght bspc @acute-q ret
+  _    C-z  C-x  C-c C-v  _    @enye-q ret _ _ @slash-delete-question caps
   _    _    _              @to-colemak    _    _    _
 )
 
-;; Vim Hybrid while Colemak-DH is the base layout. Navigation remains on the
+;; Caps Utility Layer while Colemak-DH is the base layout. Navigation remains on the
 ;; same physical QWERTY positions; only Space switches back to QWERTY.
 (deflayer vim-colemak
-  _    @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    A-f4 bspc end  _    _    _    @pageup-diaeresis-c tab _ _ esc _ _
-  _    home prnt pgdn _    _    left down up rght _  @acute-c ret
-  _    _    del  _  _    _    @enye-c ret  _    _    @slash-inverted-question caps
+  grv  @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
+  _    A-f4 C-w  end  C-r  C-t  _    @pageup-diaeresis-c tab _ _ esc _ _
+  _    home prnt pgdn C-f esc left down up rght bspc @acute-c ret
+  _    C-z  C-x  C-c C-v  _    @enye-c ret _ _ @slash-delete-question caps
   _    _    _              @to-qwerty     _    _    _
 )
 

@@ -1,8 +1,8 @@
 ;; Athesto Keyboard - Windows / Kanata
-;; Version: 2026.08.20.17
+;; Version: 2026.08.22.2
 ;;
 ;; Caps double tap -> Escape
-;; Caps hold       -> Vim Hybrid
+;; Caps hold       -> Caps Utility Layer
 ;; Caps+Space      -> QWERTY / Colemak-DH
 ;; Caps+RightShift -> Caps Lock
 ;; Right Win       -> Right Alt
@@ -32,8 +32,6 @@
 
   ;; Match the macOS layer using native Windows actions.
   screenshot-clipboard M-S-s
-  scroll-up (mwheel-up 50 120)
-  scroll-down (mwheel-down 50 120)
 
   to-qwerty (multi
               (layer-switch qwerty)
@@ -63,7 +61,7 @@
   pageup-diaeresis-q (fork pgup @diaeresis-q (lsft rsft))
   pageup-diaeresis-c (fork pgup @diaeresis-c (lsft rsft))
   f1-inverted-exclamation (fork f1 (unicode ¡) (lsft rsft))
-  slash-inverted-question (fork / (unicode ¿) (lsft rsft))
+  slash-delete-question (fork del (unicode ¿) (lsft rsft))
 )
 
 ;; QWERTY base. Escape stays Escape; Left Shift+Escape produces tilde.
@@ -84,22 +82,22 @@
   lctl lmet lalt           spc            ralt ralt rctl
 )
 
-;; Vim Hybrid while QWERTY is the base layout.
+;; Caps Utility Layer while QWERTY is the base layout.
 (deflayer vim-qwerty
   grv  @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    A-f4 _      end  _    _    _    @pageup-diaeresis-q tab _ _ esc _ _
-  _    home @screenshot-clipboard pgdn _ _ left down up rght bspc @acute-q ret
-  _    _    del  _  _    _    @enye-q ret @scroll-up @scroll-down @slash-inverted-question caps
+  _    A-f4 C-w    end  C-r  C-t  _    @pageup-diaeresis-q tab _ _ esc _ _
+  _    home @screenshot-clipboard pgdn C-f esc left down up rght bspc @acute-q ret
+  _    C-z  C-x    C-c  C-v  _    @enye-q ret _ _ @slash-delete-question caps
   _    _    _              @to-colemak    _    _    _
 )
 
-;; Vim Hybrid while Colemak-DH is the base layout. Navigation remains on the
+;; Caps Utility Layer while Colemak-DH is the base layout. Navigation remains on the
 ;; same physical QWERTY positions; only Space switches back to QWERTY.
 (deflayer vim-colemak
   grv  @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    A-f4 _      end  _    _    _    @pageup-diaeresis-c tab _ _ esc _ _
-  _    home @screenshot-clipboard pgdn _ _ left down up rght bspc @acute-c ret
-  _    _    del  _  _    _    @enye-c ret @scroll-up @scroll-down @slash-inverted-question caps
+  _    A-f4 C-w    end  C-r  C-t  _    @pageup-diaeresis-c tab _ _ esc _ _
+  _    home @screenshot-clipboard pgdn C-f esc left down up rght bspc @acute-c ret
+  _    C-z  C-x    C-c  C-v  _    @enye-c ret _ _ @slash-delete-question caps
   _    _    _              @to-qwerty     _    _    _
 )
 

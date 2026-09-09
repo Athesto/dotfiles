@@ -3,21 +3,26 @@
 Esta carpeta contiene la configuración de Kanata para Windows y scripts de
 PowerShell para instalar, iniciar, detener y desinstalar el runtime.
 
-Versión de la distribución: `2026.08.20.11`.
+Versión de la distribución: `2026.08.22.2`.
 
 La capa utiliza un único perfil **Vim Classic**:
 
 ```text
 Caps, Caps       → Escape
-Caps sostenido   → Vim Hybrid
+Caps sostenido   → Caps Utility
+Caps+Q           → Alt+F4
 Caps+H/J/K/L     → ←/↓/↑/→
 Caps+M           → Enter
 Caps+;           → Backspace
-Caps+, / Caps+.  → Scroll arriba / abajo
+Caps+W/R/T/F     → atajos Ctrl de aplicación
+Caps+Z/X/C/V     → deshacer/cortar/copiar/pegar
+Caps+G           → Escape
+Caps+/           → Delete
 Caps+S           → Recorte al portapapeles
 ```
 
-El perfil alternativo `Semicolon Enter` de macOS no está incluido en Windows.
+Vim Classic es el único esquema de navegación. `Y`, `O`, `P` y `B` permanecen
+libres. `Caps+Q` es una excepción específica de Windows para cerrar ventanas.
 
 Windows debe usar la distribución de teclado **English (United States)**. Los
 caracteres en español se generan desde `vim-hybrid.kbd`, no mediante las dead

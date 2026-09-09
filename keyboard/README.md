@@ -9,7 +9,7 @@ The configuration combines:
 
 - Colemak-DH as an optional typing layout.
 - An ASCII/Readline-inspired custom layer.
-- A Vim Hybrid layer with modifier-based movement and deletion.
+- A Caps Utility layer with Vim-style navigation and application shortcuts.
 - Editing shortcuts inspired by Readline and Emacs.
 - Missing keys commonly found on larger keyboards.
 - Platform-specific remapping tools.
@@ -61,6 +61,7 @@ every incoming modifier. Home and End have their own mnemonic bindings:
 Caps+H/J/K/L → arrow keys
 Caps+A       → Home
 Caps+E       → End
+Caps+Q       → Alt+F4
 Alt          → preserved
 Ctrl         → preserved
 Shift        → preserved for selection
@@ -81,18 +82,17 @@ Caps+;             → Backspace
 Caps+Alt+;         → Alt+Backspace
 Caps+Ctrl+;        → Ctrl+Backspace
 
-Caps+X             → Delete
-Caps+Alt+X         → Alt+Delete
-Caps+Ctrl+X        → Ctrl+Delete
+Caps+/             → Delete
+Caps+Z/X/C/V       → Ctrl+Z/X/C/V
+Caps+W/R/T/F       → Ctrl+W/R/T/F
 
 Caps+Backspace     → Ctrl+Backspace
 Caps+M             → Enter
-Caps+, / Caps+.    → Scroll up / down
 Caps+S             → Area capture to clipboard
 ```
 
 Pressing Caps once has no output. Pressing it twice within 300 ms sends
-Escape; holding it continues to activate Vim Hybrid.
+Escape; holding it continues to activate Caps Utility.
 
 The modifier order does not matter. `Right Win` becomes `Right Alt`, while
 the left Windows key keeps its normal system behavior.
@@ -123,35 +123,21 @@ The Linux implementation is grouped under [`linux/`](linux/). See
 [`linux/README.md`](linux/README.md) for installation, `input`/`uinput`
 permissions, the systemd user service, journald logs, and troubleshooting.
 
-### macOS input-source profiles
+### macOS input source
 
-The main generator contains two complete, alternative Vim Hybrid rules. Enable
-only the one that matches the active macOS input source.
-
-The canonical rule targets the built-in ABC input source and does not require
-an external keyboard layout:
+The Caps Utility rule targets the built-in ABC input source and does not
+require an external keyboard layout:
 
 ```text
 Caps+N         → Option+N, N → ñ
 Caps+Shift+N   → Option+N    → tilde dead key
-Caps+'         → Option+E    → acute dead key
-Caps+Shift+'   → Option+`    → grave dead key
-Caps+Shift+U   → Option+U    → diaeresis dead key
-Caps+?         → Option+Shift+/ → ¿
-Caps+!         → Option+1       → ¡
+Caps+P         → Option+E    → acute dead key
+Caps+Shift+P   → Option+U    → diaeresis dead key
+Caps+/         → Option+Shift+/ → ¿
+Caps+Shift+/   → Option+1       → ¡
 ```
 
-The legacy rule keeps US-AltGr-Intl available during migration:
-
-```text
-Caps+N       → Option+N       → ñ
-Caps+Shift+N → Option+Shift+N → Ñ
-Caps+'       → Option+'        → acute dead key
-```
-
-Use `vimHybridRule` for ABC Standard or
-`vimHybridUsAltGrIntlLegacyRule` for the external layout. Do not enable both
-Vim rules at the same time. QWERTY/Colemak navigation is identical in both.
+Use `vimHybridRule` with the ABC input source.
 
 Recommended final setup:
 
@@ -160,24 +146,12 @@ macOS input source: ABC
 
 Enable:
 Right Command as Right Option       optional
-Vim Hybrid Layer - ABC Standard
+Caps Utility Layer - ABC Standard
 Colemak-DH ANSI                     optional
 60% Keyboard Compatibility          only for compact keyboards
 ```
 
-Temporary setup while still using US-AltGr-Intl:
-
-```text
-macOS input source: US-AltGr-Intl
-
-Enable:
-Right Command as Right Option                 optional
-Vim Hybrid Layer - US-AltGr-Intl Legacy
-Colemak-DH ANSI                               optional
-60% Keyboard Compatibility                    only for compact keyboards
-```
-
-The ASCII/Readline and Vim Hybrid rules are alternative custom layers. Do not
+The ASCII/Readline and Caps Utility rules are alternative custom layers. Do not
 enable them together because both use Caps Lock as their activator.
 
 ## macOS / Karabiner custom layers
@@ -320,13 +294,12 @@ Caps+' → Left Option + '
 ```
 
 This exposes the configured dead-key behavior for typing accented
-characters. Its exact result depends on the active input source. The Vim
-Hybrid profiles below provide their own explicit ABC and US-AltGr-Intl
-implementations instead.
+characters. Its exact result depends on the active input source. The Caps
+Utility rule below provides its own explicit ABC implementation.
 
-## macOS Vim Hybrid Layer
+## macOS Caps Utility Layer
 
-The Vim Hybrid layer uses `H`, `J`, `K`, and `L` for directional
+The Caps Utility layer uses the Vim Classic `H`, `J`, `K`, and `L` for directional
 navigation. Modifiers change the granularity or extend the movement:
 
 ```text
@@ -339,17 +312,16 @@ Shift       → selection
 The primary ANSI rows provide this compact view of the layer:
 
 ```text
-CAPS — Vim Classic · 2026.08.20.11
+CAPS UTILITY — Vim Classic · 2026.08.25.1
 
-Q ·    W ·    E ↦    R ·    T ·    │ Y ·    U ⎗    I ⇥    O ·    P ·    [ ⎋
-  A ⇤    S ⎙    D ⎘    F ·    G ·  │ H ←    J ↓    K ↑    L →    ; ⌫    ' ´
-    Z ·    X ⌦    C ·    V ·    B ·│ N ñ    M ↵    , ⇞    . ⇟    / ¿
+Q ·    W ⌘W   E ↦    R ⌘R   T ⌘T   │ Y ·    U ⎗    I ⇥    O ⌦    P ´/¨  [ ⎋
+  A ⇤    S ⎙    D ⎘    F ⌘F   G ⎋ │ H ←    J ↓    K ↑    L →    ; ⌫    ' ·
+    Z ⌘Z   X ⌘X   C ⌘C   V ⌘V   B ·│ N ñ    M ↵    , ·    . ·    / ¿/¡
 ```
 
 ```text
 ⇤ Home          ↦ End
 ⎗ Page Up       ⎘ Page Down
-⇞ Scroll Up     ⇟ Scroll Down
 ⇥ Tab           ↵ Enter
 ⌫ Backspace     ⌦ Delete
 ⎋ Escape        ⎙ Screen Capture
@@ -358,19 +330,11 @@ Q ·    W ·    E ↦    R ·    T ·    │ Y ·    U ⎗    I ⇥    O ·    P
 The number row remains available as `Caps+1…=` → `F1…F12` when the
 independent 60% compatibility rule is enabled.
 
-### Navigation profiles
+### Layout toggle
 
-`Caps+Space` alterna entre dos perfiles. Karabiner muestra el perfil activo
-durante dos segundos después de cada cambio:
-
-```text
-Vim Classic                 Semicolon Enter
-H ←  J ↓  K ↑  L →  ; ⌫     H ←  J ↓  K ↑  L →  ; ↵
-     M ↵                          M ⌫
-```
-
-`Vim Classic` es el perfil predeterminado. Ambos conservan `HJKL`; solamente
-intercambian las posiciones de Enter y Backspace.
+`Caps+Space` alterna entre QWERTY y Colemak-DH. Karabiner muestra la
+distribución activa durante dos segundos. Vim Classic es el único esquema de
+navegación.
 
 ### Basic Keys
 
@@ -378,8 +342,9 @@ intercambian las posiciones de Enter y Backspace.
 | -------- | ------ |
 | `Caps+I` | Tab    |
 | `Caps+[` | Escape |
+| `Caps+G` | Escape |
 
-Enter está en `Caps+M` con `Vim Classic` y en `Caps+;` con `Semicolon Enter`.
+Enter está en `Caps+M` y Backspace en `Caps+;`.
 
 ### Navigation
 
@@ -412,36 +377,35 @@ Caps+Shift+Command+L → select to end of line
 | Binding          | Output                                    |
 | ---------------- | ----------------------------------------- |
 | `Caps+;`         | Delete previous character (`Vim Classic`) |
-| `Caps+M`         | Delete previous character (`Semicolon Enter`) |
-| `Caps+X`         | Delete next character                     |
+| `Caps+O`         | Delete next character                     |
 | `Caps+Option+;`  | Delete previous word                      |
-| `Caps+Option+X`  | Delete next word                          |
 | `Caps+Command+;` | Delete to beginning of line               |
-| `Caps+Command+X` | Delete to end of line                     |
 | `Caps+Backspace` | Delete previous word (`Option+Backspace`) |
 
-`B` and `F` intentionally have no mappings in this layer. In both profiles,
-word movement is provided by `Option+H` and `Option+L`.
+Word movement is provided by `Option+H` and `Option+L`.
+
+### Application shortcuts
+
+`Caps+W/R/T/F/Z/X/C/V` sends `Command` plus the same key. On Windows and
+Linux, `Caps+Q` sends `Alt+F4`; on macOS it remains unassigned. `Y` and `B`
+intentionally remain unassigned.
 
 ### Other Keys
 
 | Binding      | Output                                         |
 | ------------ | ---------------------------------------------- |
 | `Caps+S`     | Capture an area to the clipboard              |
-| `Caps+,`     | Scroll up                                      |
-| `Caps+.`     | Scroll down                                    |
 
-Character entry depends on the selected macOS input-source profile:
+Character entry uses the ABC input source:
 
-| Binding        | ABC Standard                    | US-AltGr-Intl Legacy              |
-| -------------- | ------------------------------- | --------------------------------- |
-| `Caps+N`       | `Option+N`, then `N` → ñ        | `Option+N` → ñ                    |
-| `Caps+Shift+N` | `Option+N` → tilde dead key     | `Option+Shift+N` → Ñ              |
-| `Caps+'`       | `Option+E` → acute dead key     | `Option+'` → acute dead key       |
-| `Caps+Shift+'` | `Option+grave` → grave dead key | Same as the legacy accent mapping |
-| `Caps+Shift+U` | `Option+U` → diaeresis dead key | Inherited `Shift+Page Up`         |
-| `Caps+?`       | `Option+Shift+/` → ¿            | Unassigned                        |
-| `Caps+!`       | `Option+1` → ¡                  | Unassigned                        |
+| Binding        | Output                          |
+| -------------- | ------------------------------- |
+| `Caps+N`       | `Option+N`, then `N` → ñ        |
+| `Caps+Shift+N` | `Option+N` → tilde dead key     |
+| `Caps+P`       | `Option+E` → acute dead key     |
+| `Caps+Shift+P` | `Option+U` → diaeresis dead key |
+| `Caps+/`       | `Option+Shift+/` → ¿            |
+| `Caps+Shift+/` | `Option+1` → ¡                  |
 
 With ABC Standard, the dead key is followed by the desired letter. Shift is
 applied to that final letter when an uppercase character is needed:
@@ -449,12 +413,11 @@ applied to that final letter when an uppercase character is needed:
 ```text
 Caps+Shift+N, then N       → ñ
 Caps+Shift+N, then Shift+N → Ñ
-Caps+Shift+U, then U       → ü
-Caps+Shift+U, then Shift+U → Ü
-Caps+', then E             → é
-Caps+Shift+', then A       → à
-Caps+?                     → ¿
-Caps+!                     → ¡
+Caps+Shift+P, then U       → ü
+Caps+Shift+P, then Shift+U → Ü
+Caps+P, then E             → é
+Caps+/                     → ¿
+Caps+Shift+/               → ¡
 ```
 
 The function-key mappings described below are available when the independent
@@ -550,7 +513,7 @@ In the Karabiner configuration, Colemak-DH can be enabled and disabled from
 either custom layer:
 
 ```text
-Caps+Shift+Space → QWERTY ⇄ Colemak-DH
+Caps+Space → QWERTY ⇄ Colemak-DH
 ```
 
 The toggle changes the internal `colemak_dh` variable between `0` for
@@ -570,7 +533,7 @@ geometry, so its mnemonics remain meaningful when Colemak-DH is active.
 The macOS configuration is generated using JavaScript:
 
 ```text
-ascii-readline.karabiner.json.js
+macos/caps-utility/ascii-readline.karabiner.json.js
 ```
 
 The generator intentionally targets ECMAScript 5 compatibility.
@@ -582,19 +545,19 @@ copying the generated file does not automatically enable every rule.
 Validate it with:
 
 ```sh
-npx es-check es5 ascii-readline.karabiner.json.js
+npx es-check es5 macos/caps-utility/ascii-readline.karabiner.json.js
 ```
 
 Generate and inspect the Karabiner JSON with:
 
 ```sh
-node ascii-readline.karabiner.json.js | jq
+node macos/caps-utility/ascii-readline.karabiner.json.js | jq
 ```
 
 Run the behavior checks with:
 
 ```sh
-node validate-karabiner.js
+node macos/caps-utility/validate-karabiner.js
 ```
 
 The generated object follows the Karabiner complex modifications format:
@@ -616,9 +579,7 @@ rightCommandAsOptionRule → Right Command as Right Option
 sixtyPercentCompatibilityRule
                          → 60% Keyboard Compatibility
 asciiReadlineRule        → ASCII/Readline Layer
-vimHybridRule            → Vim Hybrid Layer - ABC Standard
-vimHybridUsAltGrIntlLegacyRule
-                         → Vim Hybrid Layer - US-AltGr-Intl Legacy
+vimHybridRule            → Caps Utility Layer - ABC Standard
 colemakDHRule            → Colemak-DH ANSI
 ```
 
@@ -634,7 +595,6 @@ function main() {
       sixtyPercentCompatibilityRule,
       asciiReadlineRule,
       vimHybridRule,
-      vimHybridUsAltGrIntlLegacyRule,
       colemakDHRule,
     ],
   };
@@ -652,7 +612,6 @@ console.log(JSON.stringify(karabinerBindings, null, 2));
 // sixtyPercentCompatibilityRule
 // asciiReadlineRule
 vimHybridRule;
-// vimHybridUsAltGrIntlLegacyRule
 // colemakDHRule
 ```
 

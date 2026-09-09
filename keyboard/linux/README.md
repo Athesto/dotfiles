@@ -2,8 +2,11 @@
 
 Esta carpeta implementa Athesto Keyboard en Linux con Kanata y un servicio de
 usuario de systemd. El mapa conserva las posiciones físicas y el comportamiento
-de la versión de Windows: Vim Hybrid, QWERTY/Colemak-DH, teclas de función y
+de la versión de Windows: Caps Utility con navegación Vim Classic,
+QWERTY/Colemak-DH, teclas de función y
 caracteres en español.
+
+`Caps+Q` envía `Alt+F4`, igual que en Windows, para cerrar la ventana activa.
 
 ## Archivos
 

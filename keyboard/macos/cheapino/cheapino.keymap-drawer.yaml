@@ -1,0 +1,200 @@
+# Adapted from:
+# https://github.com/manna-harbour/miryoku_zmk/blob/master/config/microdox.keymap
+layout:
+  qmk_keyboard: crkbd/rev1
+  layout_name: LAYOUT_split_3x6_3
+  version: "2026.08.25.9"
+
+# The runtime default is Sides: Native; ghost keys visualize optional aliases.
+
+layers:
+  BASE_QWERTY:
+    - [
+        {type: ghost},
+        Q, W, E, R, T,
+        Y, U, I, O, P,
+        {h: FN_MEDIA, type: ghost}
+      ]
+    - [
+        {t: Esc, h: UTIL, type: ghost},
+        {t: A, h: Shift},
+        {t: S, h: Ctrl},
+        {t: D, h: Opt},
+        {t: F, h: Cmd},
+        G,
+        H,
+        {t: J, h: Cmd},
+        {t: K, h: Opt},
+        {t: L, h: Ctrl},
+        {t: ";", h: Shift, s: ":"},
+        {h: NUM_SYM, type: ghost}
+      ]
+    - [
+        {t: Cmd, type: ghost},
+        Z, X, C, V, B,
+        N,
+        M,
+        {t: ",", s: "<"},
+        {t: ".", s: ">"},
+        {t: "/", s: "?"},
+        {t: Space, type: ghost}
+      ]
+    # LTO, LTM, LTI, RTI, RTM, RTO
+    - null
+    - {t: Esc, h: UTIL}
+    - Cmd
+    - Space
+    - {h: NUM_SYM}
+    - {h: FN_MEDIA}
+
+  BASE_COLEMAK_DH:
+    - [
+        {type: ghost},
+        Q, W, F, P, B,
+        J, L, U, Y, ";",
+        {h: FN_MEDIA, type: ghost}
+      ]
+    - [
+        {t: Esc, h: UTIL, type: ghost},
+        {t: A, h: Shift},
+        {t: R, h: Ctrl},
+        {t: S, h: Opt},
+        {t: T, h: Cmd},
+        G,
+        M,
+        {t: N, h: Cmd},
+        {t: E, h: Opt},
+        {t: I, h: Ctrl},
+        {t: O, h: Shift},
+        {h: NUM_SYM, type: ghost}
+      ]
+    - [
+        {t: Cmd, type: ghost},
+        Z, X, C, D, V,
+        K,
+        H,
+        {t: ",", s: "<"},
+        {t: ".", s: ">"},
+        {t: "/", s: "?"},
+        {t: Space, type: ghost}
+      ]
+    # LTO, LTM, LTI, RTI, RTM, RTO
+    - null
+    - {t: Esc, h: UTIL}
+    - Cmd
+    - Space
+    - {h: NUM_SYM}
+    - {h: FN_MEDIA}
+
+  UTIL:
+    - [
+        {type: ghost},
+        null, null, End, null, null,
+        null, {t: PgUp, s: "ü"}, Tab, Delete, {t: "´", s: "¨"},
+        {h: FN_MEDIA, type: ghost}
+      ]
+    - [
+        {h: UTIL, type: ghost},
+        {t: Home, h: Shift},
+        Ctrl,
+        {t: PgDn, h: Opt},
+        Cmd,
+        Esc,
+        Left,
+        Down,
+        Up,
+        Right,
+        BSpace,
+        {type: ghost}
+      ]
+    - [
+        {t: Cmd, type: ghost},
+        null, null, null, null, null,
+        {t: "ñ", s: "Ñ"}, Enter, null, null, {t: "¿", s: "¡"},
+        {t: "Base Next", type: ghost}
+      ]
+    # LTO, LTM, LTI, RTI, RTM, RTO
+    - null
+    - {type: held}
+    - Cmd
+    - "Base Next"
+    - null
+    - {h: FN_MEDIA}
+
+  NUM_SYM:
+    - [
+        {type: ghost},
+        {t: "1", s: "!"},
+        {t: "2", s: "@"},
+        {t: "3", s: "#"},
+        {t: "4", s: "$"},
+        {t: "5", s: "%"},
+        {t: "6", s: "^"},
+        {t: "7", s: "&"},
+        {t: "8", s: "*"},
+        {t: "9", s: "("},
+        {t: "0", s: ")"},
+        {h: FN_MEDIA, type: ghost}
+      ]
+    - [
+        {t: Esc, type: ghost},
+        {t: "`", h: Shift, s: "~"},
+        {h: Ctrl},
+        {t: "-", h: Opt, s: "_"},
+        {t: "=", h: Cmd, s: "+"},
+        null,
+        null,
+        {t: "[", h: Cmd, s: "{"},
+        {t: "]", h: Opt, s: "}"},
+        {t: "\\", h: Ctrl, s: "|"},
+        {t: "'", h: Shift, s: '"'},
+        {type: ghost}
+      ]
+    - [
+        {t: Cmd, type: ghost},
+        null, null, null, null, null,
+        null, null, null, null, null,
+        {t: Space, type: ghost}
+      ]
+    # LTO, LTM, LTI, RTI, RTM, RTO
+    - null
+    - Esc
+    - Cmd
+    - Space
+    - {type: held}
+    - {h: FN_MEDIA}
+
+  FN_MEDIA:
+    - [
+        {type: ghost},
+        "Side Mode", null, null, null, null,
+        null, F1, F2, F3, F4,
+        {h: FN_MEDIA, type: ghost}
+      ]
+    - [
+        {t: Esc, type: ghost},
+        {t: Play, h: Shift},
+        {t: Prev, h: Ctrl},
+        {t: Next, h: Opt},
+        {t: "Vol +", h: Cmd},
+        "Vol -",
+        Mute,
+        {t: F5, h: Cmd},
+        {t: F6, h: Opt},
+        {t: F7, h: Ctrl},
+        {t: F8, h: Shift},
+        {type: ghost}
+      ]
+    - [
+        {t: Cmd, type: ghost},
+        null, null, null, null, null,
+        null, F9, F10, F11, F12,
+        {t: Space, type: ghost}
+      ]
+    # LTO, LTM, LTI, RTI, RTM, RTO
+    - null
+    - Esc
+    - Cmd
+    - Space
+    - null
+    - {type: held}

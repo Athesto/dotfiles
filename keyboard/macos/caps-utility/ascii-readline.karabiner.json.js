@@ -1,10 +1,8 @@
-var VERSION = "2026.08.20.11";
+var VERSION = "30.1";
+var ENABLE_CAPS_DOUBLE_TAP_ESCAPE = false;
 var ASCII_READLINE_LAYER = "ascii_readline_layer";
-var VIM_HYBRID_LAYER = "vim_hybrid_layer";
+var CAPS_UTILITY_ABC_STANDARD_LAYER = "caps_utility_abc_standard_layer";
 var COLEMAK_DH = "colemak_dh";
-var VIM_NAVIGATION_PROFILE = "vim_navigation_profile";
-var INPUT_SOURCE_ABC_STANDARD = "abc_standard";
-var INPUT_SOURCE_US_ALTGR_INTL = "us_altgr_intl";
 var LAYOUT_NOTIFICATION = "keyboard_layout";
 var LAYOUT_NOTIFICATION_DURATION_MS = 2000;
 var CAPS_LOCK_HOLD_MS = 200;
@@ -14,10 +12,18 @@ var LAYER_INACTIVE = 0;
 var LAYER_ACTIVE = 1;
 var LAYOUT_QWERTY = 0;
 var LAYOUT_COLEMAK_DH = 1;
-var PROFILE_VIM_CLASSIC = 0;
-var PROFILE_SEMICOLON_ENTER = 1;
 var CHARACTER_OPTION = "right_option";
-var SCROLL_STEP = 32;
+
+/* -------------------------------------------------------------------------- */
+/* MAIN                                                                       */
+/* -------------------------------------------------------------------------- */
+
+function main(rules) {
+  return {
+    title: "Athesto Keyboard — " + VERSION,
+    rules: rules,
+  };
+}
 
 /* -------------------------------------------------------------------------- */
 /* MAPPINGS                                                                   */
@@ -54,11 +60,13 @@ var asciiReadlineMappings = {
   d: "delete_forward",
 };
 
-var vimHybridMappings = {
+var capsUtilityABCStandardMappings = {
   /*
    * ASCII
    */
   i: "tab",
+  g: "escape",
+  o: "delete_forward",
   open_bracket: "escape",
 
   /*
@@ -72,32 +80,17 @@ var vimHybridMappings = {
    */
   a: "home",
   e: "end",
+
+  /* Vim Classic */
+  h: "left_arrow",
+  j: "down_arrow",
+  k: "up_arrow",
+  l: "right_arrow",
+  semicolon: "delete_or_backspace",
+  m: "return_or_enter",
 };
 
-var vimNavigationProfiles = [
-  {
-    name: "Vim Classic",
-    mappings: {
-      h: "left_arrow",
-      j: "down_arrow",
-      k: "up_arrow",
-      l: "right_arrow",
-      semicolon: "delete_or_backspace",
-      m: "return_or_enter",
-    },
-  },
-  {
-    name: "Semicolon Enter",
-    mappings: {
-      h: "left_arrow",
-      j: "down_arrow",
-      k: "up_arrow",
-      l: "right_arrow",
-      semicolon: "return_or_enter",
-      m: "delete_or_backspace",
-    },
-  },
-];
+var applicationShortcutKeys = ["w", "r", "t", "f", "z", "x", "c", "v"];
 
 var functionMappings = {
   1: "f1",
@@ -213,29 +206,6 @@ function createModifiedMapping(from, to, modifiers, conditions) {
       {
         key_code: to,
         modifiers: modifiers,
-      },
-    ],
-
-    conditions: conditions,
-  };
-}
-
-function createVerticalScrollMapping(from, distance, conditions) {
-  return {
-    type: "basic",
-
-    from: {
-      key_code: from,
-      modifiers: {
-        optional: ["any"],
-      },
-    },
-
-    to: [
-      {
-        mouse_key: {
-          vertical_wheel: distance,
-        },
       },
     ],
 
@@ -387,6 +357,10 @@ function createLayerActivator(layer, isSecondTap) {
     ],
   };
 
+  if (!ENABLE_CAPS_DOUBLE_TAP_ESCAPE) {
+    return activator;
+  }
+
   if (isSecondTap) {
     activator.to_if_alone = [
       {
@@ -505,9 +479,6 @@ function createColemakToggleMapping(layer, currentValue, nextValue, name) {
 
     from: {
       key_code: "spacebar",
-      modifiers: {
-        mandatory: ["shift"],
-      },
     },
 
     to: [
@@ -551,87 +522,17 @@ function createColemakToggleMappings(layer) {
   ];
 }
 
-function createVimProfileToggleMapping(currentValue, nextValue, name) {
-  var currentProfileConditions = createVimProfileConditions(currentValue);
-
-  return {
-    type: "basic",
-
-    from: {
-      key_code: "spacebar",
-    },
-
-    to: [
-      {
-        set_variable: {
-          name: VIM_NAVIGATION_PROFILE,
-          value: nextValue,
-        },
-      },
-      layoutNotification(name),
-    ],
-
-    to_delayed_action: {
-      to_if_invoked: [layoutNotification("")],
-      to_if_canceled: [layoutNotification("")],
-    },
-
-    parameters: {
-      "basic.to_delayed_action_delay_milliseconds":
-        LAYOUT_NOTIFICATION_DURATION_MS,
-    },
-
-    conditions: [variableIf(VIM_HYBRID_LAYER, LAYER_ACTIVE)].concat(
-      currentProfileConditions
-    ),
-  };
-}
-
-function createVimProfileConditions(profile) {
-  var conditions = [];
-  var i;
-
-  if (profile === PROFILE_VIM_CLASSIC) {
-    for (i = 1; i < vimNavigationProfiles.length; i += 1) {
-      conditions.push(variableUnless(VIM_NAVIGATION_PROFILE, i));
-    }
-
-    return conditions;
-  }
-
-  return [variableIf(VIM_NAVIGATION_PROFILE, profile)];
-}
-
-function createVimProfileToggleMappings() {
-  var mappings = [];
-  var i;
-  var nextProfile;
-
-  for (i = 0; i < vimNavigationProfiles.length; i += 1) {
-    nextProfile = (i + 1) % vimNavigationProfiles.length;
-    mappings.push(
-      createVimProfileToggleMapping(
-        i,
-        nextProfile,
-        vimNavigationProfiles[nextProfile].name
-      )
-    );
-  }
-
-  return mappings;
-}
-
-function createVimProfileMappings() {
+function createApplicationShortcutMappings(conditions) {
   var manipulators = [];
   var i;
 
-  for (i = 0; i < vimNavigationProfiles.length; i += 1) {
-    manipulators = manipulators.concat(
-      createMappingsFromObject(
-        vimNavigationProfiles[i].mappings,
-        [variableIf(VIM_HYBRID_LAYER, LAYER_ACTIVE)].concat(
-          createVimProfileConditions(i)
-        )
+  for (i = 0; i < applicationShortcutKeys.length; i += 1) {
+    manipulators.push(
+      createModifiedMapping(
+        applicationShortcutKeys[i],
+        applicationShortcutKeys[i],
+        ["left_command"],
+        conditions
       )
     );
   }
@@ -643,7 +544,13 @@ function createCommonLayerMappings(layer) {
   var conditions = [variableIf(layer, LAYER_ACTIVE)];
   var manipulators = [
     createReverseCapsLockMapping(),
-    createLayerActivator(layer, true),
+  ];
+
+  if (ENABLE_CAPS_DOUBLE_TAP_ESCAPE) {
+    manipulators.push(createLayerActivator(layer, true));
+  }
+
+  manipulators.push(
     createLayerActivator(layer, false),
     createCapsLockMapping(layer),
     createMandatoryModifiedMapping(
@@ -653,45 +560,72 @@ function createCommonLayerMappings(layer) {
       ["left_command"],
       conditions
     ),
-    createMapping("escape", "grave_accent_and_tilde", conditions),
-  ];
+    createMapping("escape", "grave_accent_and_tilde", conditions)
+  );
 
   return manipulators.concat(createColemakToggleMappings(layer));
 }
 
 function createABCStandardCharacterMappings(conditions) {
   return [
-    /* Caps+? -> Right Option+Shift+/ -> ¿ */
-    createMandatoryModifiedMapping(
-      "slash",
-      "slash",
-      ["shift"],
-      [CHARACTER_OPTION, "left_shift"],
-      conditions
-    ),
+    /*
+     * Caps+Shift+; -> Delete (experimental alias for Caps+O).
+     * Option and Command pass through, matching the Backspace mapping:
+     * Caps+Option+; -> Option+Backspace
+     * Caps+Command+; -> Command+Backspace
+     * Caps+Shift+Option+; -> Option+Delete
+     * Caps+Shift+Command+; -> Command+Delete
+     */
+    {
+      type: "basic",
+      from: {
+        key_code: "semicolon",
+        modifiers: {
+          mandatory: ["shift"],
+          optional: ["option", "command"],
+        },
+      },
+      to: [
+        {
+          key_code: "delete_forward",
+        },
+      ],
+      conditions: conditions,
+    },
 
-    /* Caps+! -> Right Option+1 -> ¡ */
+    /* Caps+Shift+/ -> Right Option+1 -> ¡ */
     createMandatoryModifiedMapping(
-      "1",
+      "slash",
       "1",
       ["shift"],
       [CHARACTER_OPTION],
       conditions
     ),
+
+    /* Caps+/ -> Right Option+Shift+/ -> ¿ */
+    createModifiedMapping(
+      "slash",
+      "slash",
+      [CHARACTER_OPTION, "left_shift"],
+      conditions
+    ),
+
+    /* Caps+Shift+P -> Right Option+U -> diaeresis dead key */
+    createMandatoryModifiedMapping(
+      "p",
+      "u",
+      ["shift"],
+      [CHARACTER_OPTION],
+      conditions
+    ),
+
+    /* Caps+P -> Right Option+E -> acute dead key */
+    createModifiedMapping("p", "e", [CHARACTER_OPTION], conditions),
 
     /* Caps+Shift+N -> Right Option+N -> tilde dead key */
     createMandatoryModifiedMapping(
       "n",
       "n",
-      ["shift"],
-      [CHARACTER_OPTION],
-      conditions
-    ),
-
-    /* Caps+Shift+U -> Right Option+U -> diaeresis dead key */
-    createMandatoryModifiedMapping(
-      "u",
-      "u",
       ["shift"],
       [CHARACTER_OPTION],
       conditions
@@ -716,44 +650,7 @@ function createABCStandardCharacterMappings(conditions) {
       ],
       conditions: conditions,
     },
-
-    /* Caps+Shift+' -> Right Option+` -> grave dead key */
-    createMandatoryModifiedMapping(
-      "quote",
-      "grave_accent_and_tilde",
-      ["shift"],
-      [CHARACTER_OPTION],
-      conditions
-    ),
-    {
-      type: "basic",
-      from: {
-        key_code: "quote",
-      },
-      to: [
-        {
-          key_code: "e",
-          modifiers: [CHARACTER_OPTION],
-        },
-      ],
-      conditions: conditions,
-    },
   ];
-}
-
-function createUSAltGrIntlCharacterMappings(conditions) {
-  return [
-    createModifiedMapping("quote", "quote", [CHARACTER_OPTION], conditions),
-    createModifiedMapping("n", "n", [CHARACTER_OPTION], conditions),
-  ];
-}
-
-function createInputSourceCharacterMappings(inputSource, conditions) {
-  if (inputSource === INPUT_SOURCE_ABC_STANDARD) {
-    return createABCStandardCharacterMappings(conditions);
-  }
-
-  return createUSAltGrIntlCharacterMappings(conditions);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -807,7 +704,7 @@ function generate60PercentCompatibilityRule() {
       []
     ),
   ];
-  var layers = [ASCII_READLINE_LAYER, VIM_HYBRID_LAYER];
+  var layers = [ASCII_READLINE_LAYER, CAPS_UTILITY_ABC_STANDARD_LAYER];
   var i;
   var conditions;
 
@@ -916,73 +813,29 @@ function generateAsciiReadlineRule() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* VIM HYBRID                                                                 */
+/* CAPS UTILITY - ABC STANDARD                                                 */
 /* -------------------------------------------------------------------------- */
 
-function generateVimHybridRule(inputSource) {
-  var conditions = [variableIf(VIM_HYBRID_LAYER, LAYER_ACTIVE)];
+function generateCapsUtilityABCStandardRule() {
+  var conditions = [
+    variableIf(CAPS_UTILITY_ABC_STANDARD_LAYER, LAYER_ACTIVE),
+  ];
 
-  var manipulators = createCommonLayerMappings(VIM_HYBRID_LAYER);
+  var manipulators = createCommonLayerMappings(
+    CAPS_UTILITY_ABC_STANDARD_LAYER
+  );
 
-  manipulators = manipulators.concat(createVimProfileToggleMappings());
-
-  /* Specific shifted dead keys must precede inherited base mappings. */
+  /* Spanish characters must precede inherited base mappings. */
   manipulators = manipulators.concat(
-    createInputSourceCharacterMappings(inputSource, conditions)
+    createABCStandardCharacterMappings(conditions)
   );
 
   manipulators = manipulators.concat(
-    createMappingsFromObject(vimHybridMappings, conditions)
+    createMappingsFromObject(capsUtilityABCStandardMappings, conditions)
   );
 
-  manipulators = manipulators.concat(createVimProfileMappings());
-
-  /*
-   * Symmetric deletion
-   *
-   * Semicolon  -> character backward
-   * X          -> character forward
-   * Option+;   -> word backward
-   * Option+X   -> word forward
-   * Command+;  -> beginning of line
-   * Command+X  -> end of line
-   */
-
-  manipulators.push(
-    createMandatoryModifiedMapping(
-      "x",
-      "delete_forward",
-      ["option"],
-      ["left_option"],
-      conditions
-    )
-  );
-
-  manipulators.push(
-    createMandatorySequenceMapping(
-      "x",
-      ["command"],
-      [
-        {
-          key_code: "end",
-          modifiers: ["left_shift"],
-        },
-        {
-          key_code: "delete_forward",
-        },
-      ],
-      conditions
-    )
-  );
-
-  manipulators.push(createMapping("x", "delete_forward", conditions));
-
-  manipulators.push(
-    createVerticalScrollMapping("comma", -SCROLL_STEP, conditions)
-  );
-
-  manipulators.push(
-    createVerticalScrollMapping("period", SCROLL_STEP, conditions)
+  manipulators = manipulators.concat(
+    createApplicationShortcutMappings(conditions)
   );
 
   /*
@@ -1000,11 +853,7 @@ function generateVimHybridRule(inputSource) {
   );
 
   return {
-    description: createRuleDescription(
-      inputSource === INPUT_SOURCE_ABC_STANDARD
-        ? "Vim Hybrid Layer - ABC Standard"
-        : "Vim Hybrid Layer - US-AltGr-Intl Legacy"
-    ),
+    description: createRuleDescription("Caps Utility Layer - ABC Standard"),
 
     manipulators: manipulators,
   };
@@ -1038,49 +887,22 @@ function generateColemakDHRule() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* MAIN                                                                       */
-/* -------------------------------------------------------------------------- */
-
-var rightCommandAsOptionRule = createRightCommandAsOptionRule();
-
-var sixtyPercentCompatibilityRule = generate60PercentCompatibilityRule();
-
-var asciiReadlineRule = generateAsciiReadlineRule();
-
-var vimHybridRule = generateVimHybridRule(INPUT_SOURCE_ABC_STANDARD);
-
-var vimHybridUsAltGrIntlLegacyRule = generateVimHybridRule(
-  INPUT_SOURCE_US_ALTGR_INTL
-);
-
-var colemakDHRule = generateColemakDHRule();
-
-function main() {
-  return {
-    title: "Athesto Keyboard — " + VERSION,
-
-    rules: [
-      rightCommandAsOptionRule,
-      sixtyPercentCompatibilityRule,
-      asciiReadlineRule,
-      vimHybridRule,
-      vimHybridUsAltGrIntlLegacyRule,
-      colemakDHRule,
-    ],
-  };
-}
-
-/* -------------------------------------------------------------------------- */
 /* OUTPUT                                                                     */
 /* -------------------------------------------------------------------------- */
 
-var karabinerBindings = main();
+var rightCommandAsOptionRule = createRightCommandAsOptionRule();
+var sixtyPercentCompatibilityRule = generate60PercentCompatibilityRule();
+var asciiReadlineRule = generateAsciiReadlineRule();
+var capsUtilityABCStandardRule = generateCapsUtilityABCStandardRule();
+var colemakDHRule = generateColemakDHRule();
+var rules = [
+  rightCommandAsOptionRule,
+  sixtyPercentCompatibilityRule,
+  asciiReadlineRule,
+  capsUtilityABCStandardRule,
+  colemakDHRule,
+];
+
+var karabinerBindings = main(rules);
 
 console.log(JSON.stringify(karabinerBindings, null, 2));
-
-// rightCommandAsOptionRule
-// sixtyPercentCompatibilityRule
-// asciiReadlineRule
-vimHybridRule;
-// vimHybridUsAltGrIntlLegacyRule
-// colemakDHRule
