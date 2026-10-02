@@ -3,21 +3,25 @@
 Esta carpeta contiene la configuración de Kanata para Windows y scripts de
 PowerShell para instalar, iniciar, detener y desinstalar el runtime.
 
-Versión de la distribución: `2026.08.22.2`.
+Versión de la distribución: `32.0`.
 
 La capa utiliza un único perfil **Vim Classic**:
 
 ```text
-Caps, Caps       → Escape
 Caps sostenido   → Caps Utility
 Caps+Q           → Alt+F4
 Caps+H/J/K/L     → ←/↓/↑/→
 Caps+M           → Enter
 Caps+;           → Backspace
+Caps+Shift+;     → Delete
 Caps+W/R/T/F     → atajos Ctrl de aplicación
 Caps+Z/X/C/V     → deshacer/cortar/copiar/pegar
 Caps+G           → Escape
-Caps+/           → Delete
+Caps+O           → Delete
+Caps+P           → acento agudo
+Caps+Shift+P     → diéresis
+Caps+/           → ¿
+Caps+Shift+/     → ¡
 Caps+S           → Recorte al portapapeles
 ```
 
@@ -150,11 +154,12 @@ WinIOv2 puede escribir `channel disconnected` y finalizar con el código
 combinación como un cierre esperado. Cualquier otro código distinto de cero se
 sigue tratando como un error real.
 
-## Notificación de QWERTY/Colemak
+## Notificación de QWERTY/Colemak-DH/Canaria
 
 Mientras Kanata está activo, `start-kanata.ps1` mantiene su icono en la bandeja
-del sistema. Al cambiar la capa base con `Caps+Space`, el icono muestra una
-notificación breve con `Modo QWERTY` o `Modo Colemak-DH`.
+del sistema. Al cambiar la capa base con `Caps+Shift izquierdo+Space`, el icono
+muestra una notificación breve con `Modo QWERTY`, `Modo Colemak-DH` o
+`Modo Canaria`.
 
 `start-kanata.ps1` inicia un único proceso de notificación oculto. El cambio de
 capa escribe inmediatamente el modo nuevo en
@@ -165,10 +170,10 @@ El popup es una ventana pequeña sin bordes en la esquina inferior derecha y se
 oculta después de aproximadamente dos segundos. No usa el globo de notificaciones de
 Windows porque el sistema impone una duración mínima a esos avisos.
 
-No necesita OverKeys ni un puerto TCP. Las capas temporales `vim-qwerty` y
-`vim-colemak` no escriben el archivo, por lo que mantener Caps no produce
-notificaciones. Los cambios rápidos actualizan el mismo estado en lugar de
-mantener procesos de tres segundos en una cola.
+No necesita OverKeys ni un puerto TCP. Las capas temporales `vim-qwerty`,
+`vim-colemak` y `vim-canaria` no escriben el archivo, por lo que mantener Caps
+no produce notificaciones. Los cambios rápidos actualizan el mismo estado en
+lugar de mantener procesos de tres segundos en una cola.
 
 Esta función requiere la variante oficial `winIOv2` con `cmd_allowed`. El
 instalador selecciona esa variante de forma explícita. Después de actualizar

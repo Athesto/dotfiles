@@ -50,7 +50,10 @@ function validateCapsUtilityRule(rule) {
   var layoutToggles = findManipulators(rule, "spacebar").filter(function (
     mapping
   ) {
-    return !mapping.from.modifiers;
+    return (
+      mapping.from.modifiers &&
+      mapping.from.modifiers.mandatory[0] === "left_shift"
+    );
   });
 
   assert(
@@ -94,8 +97,28 @@ function validateCapsUtilityRule(rule) {
   );
 
   assert(
-    layoutToggles.length === 2,
-    "Caps+Space must contain both layout toggle states"
+    layoutToggles.length === 3,
+    "Caps+Left Shift+Space must rotate through QWERTY, Colemak-DH, and Canaria"
+  );
+}
+
+function validateCanariaRule(rule) {
+  var physicalQ = findManipulators(rule, "q")[0];
+  var physicalA = findManipulators(rule, "a")[0];
+  var physicalComma = findManipulators(rule, "comma")[0];
+  var physicalPeriod = findManipulators(rule, "period")[0];
+  var physicalSlash = findManipulators(rule, "slash")[0];
+
+  assert(
+    physicalQ.to[0].key_code === "w" &&
+      physicalA.to[0].key_code === "c",
+    "Canaria must start its top and home rows with W and C"
+  );
+  assert(
+    physicalComma.to[0].key_code === "slash" &&
+      physicalPeriod.to[0].key_code === "comma" &&
+      physicalSlash.to[0].key_code === "period",
+    "Canaria punctuation must end its bottom row with slash, comma, and period"
   );
 }
 
@@ -112,6 +135,10 @@ configuration.rules.forEach(function (rule) {
 
   if (rule.description.indexOf("Caps Utility Layer - ABC Standard") === 0) {
     validateCapsUtilityRule(rule);
+  }
+
+  if (rule.description.indexOf("Canaria ANSI") === 0) {
+    validateCanariaRule(rule);
   }
 });
 

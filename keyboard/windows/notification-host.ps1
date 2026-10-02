@@ -35,7 +35,7 @@ function Main {
 
             $lastWriteTime = $stateFile.LastWriteTimeUtc
             $layer = (Get-Content -LiteralPath $notificationState -Raw).Trim()
-            if ($layer -notin @('qwerty', 'colemak')) {
+            if ($layer -notin @('qwerty', 'colemak', 'canaria')) {
                 continue
             }
 
@@ -87,7 +87,7 @@ function Initialize-KanataPopup {
 function Show-KanataLayerPopup {
     param(
         [Parameter(Mandatory)]
-        [ValidateSet('qwerty', 'colemak')]
+        [ValidateSet('qwerty', 'colemak', 'canaria')]
         [string] $Layer,
 
         [Parameter(Mandatory)] [object] $Popup,
@@ -95,7 +95,11 @@ function Show-KanataLayerPopup {
         [int] $DurationMilliseconds = 400
     )
 
-    $layerName = if ($Layer -eq 'colemak') { 'Colemak-DH' } else { 'QWERTY' }
+    $layerName = switch ($Layer) {
+        'colemak' { 'Colemak-DH' }
+        'canaria' { 'Canaria' }
+        default { 'QWERTY' }
+    }
     $Label.Text = "Kanata  -  $layerName"
     $Popup.Show()
     $Popup.BringToFront()

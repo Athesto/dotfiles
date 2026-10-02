@@ -1,8 +1,8 @@
-var VERSION = "30.1";
+var VERSION = "32.0";
 var ENABLE_CAPS_DOUBLE_TAP_ESCAPE = false;
 var ASCII_READLINE_LAYER = "ascii_readline_layer";
 var CAPS_UTILITY_ABC_STANDARD_LAYER = "caps_utility_abc_standard_layer";
-var COLEMAK_DH = "colemak_dh";
+var BASE_LAYOUT = "base_layout";
 var LAYOUT_NOTIFICATION = "keyboard_layout";
 var LAYOUT_NOTIFICATION_DURATION_MS = 2000;
 var CAPS_LOCK_HOLD_MS = 200;
@@ -12,6 +12,7 @@ var LAYER_INACTIVE = 0;
 var LAYER_ACTIVE = 1;
 var LAYOUT_QWERTY = 0;
 var LAYOUT_COLEMAK_DH = 1;
+var LAYOUT_CANARIA = 2;
 var CHARACTER_OPTION = "right_option";
 
 /* -------------------------------------------------------------------------- */
@@ -140,6 +141,49 @@ var colemakMappings = {
   b: "z",
   n: "k",
   m: "h",
+};
+
+var canariaMappings = {
+  /*
+   * Canaria ANSI
+   *
+   * W L Y P K   Z J O U ;
+   * C R S T B   F N E I A
+   *  X V D G Q   M H / , .
+   */
+
+  q: "w",
+  w: "l",
+  e: "y",
+  r: "p",
+  t: "k",
+  y: "z",
+  u: "j",
+  i: "o",
+  o: "u",
+  p: "semicolon",
+
+  a: "c",
+  s: "r",
+  d: "s",
+  f: "t",
+  g: "b",
+  h: "f",
+  j: "n",
+  k: "e",
+  l: "i",
+  semicolon: "a",
+
+  z: "x",
+  x: "v",
+  c: "d",
+  v: "g",
+  b: "q",
+  n: "m",
+  m: "h",
+  comma: "slash",
+  period: "comma",
+  slash: "period",
 };
 
 /* -------------------------------------------------------------------------- */
@@ -468,23 +512,33 @@ function layoutNotification(text) {
   };
 }
 
-function createColemakToggleMapping(layer, currentValue, nextValue, name) {
-  var currentLayoutCondition =
-    currentValue === LAYOUT_COLEMAK_DH
-      ? variableIf(COLEMAK_DH, LAYOUT_COLEMAK_DH)
-      : variableUnless(COLEMAK_DH, LAYOUT_COLEMAK_DH);
+function createLayoutStateConditions(currentValue) {
+  if (currentValue === LAYOUT_QWERTY) {
+    return [
+      variableUnless(BASE_LAYOUT, LAYOUT_COLEMAK_DH),
+      variableUnless(BASE_LAYOUT, LAYOUT_CANARIA),
+    ];
+  }
+
+  return [variableIf(BASE_LAYOUT, currentValue)];
+}
+
+function createLayoutToggleMapping(layer, currentValue, nextValue, name) {
 
   return {
     type: "basic",
 
     from: {
       key_code: "spacebar",
+      modifiers: {
+        mandatory: ["left_shift"],
+      },
     },
 
     to: [
       {
         set_variable: {
-          name: COLEMAK_DH,
+          name: BASE_LAYOUT,
           value: nextValue,
         },
       },
@@ -501,21 +555,29 @@ function createColemakToggleMapping(layer, currentValue, nextValue, name) {
         LAYOUT_NOTIFICATION_DURATION_MS,
     },
 
-    conditions: [variableIf(layer, 1), currentLayoutCondition],
+    conditions: [variableIf(layer, LAYER_ACTIVE)].concat(
+      createLayoutStateConditions(currentValue)
+    ),
   };
 }
 
-function createColemakToggleMappings(layer) {
+function createLayoutToggleMappings(layer) {
   return [
-    createColemakToggleMapping(
+    createLayoutToggleMapping(
       layer,
       LAYOUT_QWERTY,
       LAYOUT_COLEMAK_DH,
       "Colemak-DH"
     ),
-    createColemakToggleMapping(
+    createLayoutToggleMapping(
       layer,
       LAYOUT_COLEMAK_DH,
+      LAYOUT_CANARIA,
+      "Canaria"
+    ),
+    createLayoutToggleMapping(
+      layer,
+      LAYOUT_CANARIA,
       LAYOUT_QWERTY,
       "QWERTY"
     ),
@@ -563,7 +625,7 @@ function createCommonLayerMappings(layer) {
     createMapping("escape", "grave_accent_and_tilde", conditions)
   );
 
-  return manipulators.concat(createColemakToggleMappings(layer));
+  return manipulators.concat(createLayoutToggleMappings(layer));
 }
 
 function createABCStandardCharacterMappings(conditions) {
@@ -876,12 +938,38 @@ function generateColemakDHRule() {
     to = colemakMappings[from];
 
     manipulators.push(
-      createMapping(from, to, [variableIf(COLEMAK_DH, LAYOUT_COLEMAK_DH)])
+      createMapping(from, to, [
+        variableIf(BASE_LAYOUT, LAYOUT_COLEMAK_DH),
+      ])
     );
   }
 
   return {
     description: createRuleDescription("Colemak-DH ANSI"),
+    manipulators: manipulators,
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* CANARIA                                                                    */
+/* -------------------------------------------------------------------------- */
+
+function generateCanariaRule() {
+  var conditions = [variableIf(BASE_LAYOUT, LAYOUT_CANARIA)];
+  var manipulators = [];
+  var keys = Object.keys(canariaMappings);
+  var i;
+  var from;
+
+  for (i = 0; i < keys.length; i += 1) {
+    from = keys[i];
+    manipulators.push(
+      createMapping(from, canariaMappings[from], conditions)
+    );
+  }
+
+  return {
+    description: createRuleDescription("Canaria ANSI"),
     manipulators: manipulators,
   };
 }
@@ -895,12 +983,14 @@ var sixtyPercentCompatibilityRule = generate60PercentCompatibilityRule();
 var asciiReadlineRule = generateAsciiReadlineRule();
 var capsUtilityABCStandardRule = generateCapsUtilityABCStandardRule();
 var colemakDHRule = generateColemakDHRule();
+var canariaRule = generateCanariaRule();
 var rules = [
   rightCommandAsOptionRule,
   sixtyPercentCompatibilityRule,
   asciiReadlineRule,
   capsUtilityABCStandardRule,
   colemakDHRule,
+  canariaRule,
 ];
 
 var karabinerBindings = main(rules);

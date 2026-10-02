@@ -1,9 +1,8 @@
 ;; Athesto Keyboard - Windows / Kanata
-;; Version: 2026.08.22.2
+;; Version: 32.0
 ;;
-;; Caps double tap -> Escape
 ;; Caps hold       -> Caps Utility Layer
-;; Caps+Space      -> QWERTY / Colemak-DH
+;; Caps+LeftShift+Space -> QWERTY / Colemak-DH / Canaria
 ;; Caps+RightShift -> Caps Lock
 ;; Right Win       -> Right Alt
 ;;
@@ -24,8 +23,9 @@
 )
 
 (defalias
-  caps-q (tap-hold-press 200 200 (tap-dance 300 (XX esc)) (layer-while-held vim-qwerty))
-  caps-c (tap-hold-press 200 200 (tap-dance 300 (XX esc)) (layer-while-held vim-colemak))
+  caps-q (tap-hold-press 200 200 XX (layer-while-held vim-qwerty))
+  caps-c (tap-hold-press 200 200 XX (layer-while-held vim-colemak))
+  caps-a (tap-hold-press 200 200 XX (layer-while-held vim-canaria))
 
   ;; Preserve Escape; only Left Shift+Escape produces tilde.
   escape-tilde (fork esc grv (lsft))
@@ -39,6 +39,13 @@
   to-colemak (multi
                (layer-switch colemak)
                (cmd cmd.exe /d /c "echo colemak>runtime\layer-notification.txt"))
+  to-canaria (multi
+               (layer-switch canaria)
+               (cmd cmd.exe /d /c "echo canaria>runtime\layer-notification.txt"))
+
+  next-qwerty (fork spc @to-colemak (lsft))
+  next-colemak (fork spc @to-canaria (lsft))
+  next-canaria (fork spc @to-qwerty (lsft))
 
   ;; Spanish character entry on the standard Windows US layout.
   a-acute (fork (unicode á) (unicode Á) (lsft rsft))
@@ -51,17 +58,23 @@
 
   acute-q (one-shot 2000 (layer-while-held acute-qwerty))
   acute-c (one-shot 2000 (layer-while-held acute-colemak))
+  acute-a (one-shot 2000 (layer-while-held acute-canaria))
   diaeresis-q (one-shot 2000 (layer-while-held diaeresis-qwerty))
   diaeresis-c (one-shot 2000 (layer-while-held diaeresis-colemak))
+  diaeresis-a (one-shot 2000 (layer-while-held diaeresis-canaria))
   tilde-q (one-shot 2000 (layer-while-held tilde-qwerty))
   tilde-c (one-shot 2000 (layer-while-held tilde-colemak))
+  tilde-a (one-shot 2000 (layer-while-held tilde-canaria))
 
   enye-q (fork (unicode ñ) @tilde-q (lsft rsft))
   enye-c (fork (unicode ñ) @tilde-c (lsft rsft))
-  pageup-diaeresis-q (fork pgup @diaeresis-q (lsft rsft))
-  pageup-diaeresis-c (fork pgup @diaeresis-c (lsft rsft))
+  enye-a (fork (unicode ñ) @tilde-a (lsft rsft))
+  accent-q (fork @acute-q @diaeresis-q (lsft rsft))
+  accent-c (fork @acute-c @diaeresis-c (lsft rsft))
+  accent-a (fork @acute-a @diaeresis-a (lsft rsft))
   f1-inverted-exclamation (fork f1 (unicode ¡) (lsft rsft))
-  slash-delete-question (fork del (unicode ¿) (lsft rsft))
+  backspace-delete (fork bspc (unshift del) (lsft rsft))
+  question-marks (fork (unicode ¿) (unicode ¡) (lsft rsft))
 )
 
 ;; QWERTY base. Escape stays Escape; Left Shift+Escape produces tilde.
@@ -82,23 +95,41 @@
   lctl lmet lalt           spc            ralt ralt rctl
 )
 
+;; Canaria ANSI for bilingual English and Spanish typing.
+(deflayer canaria
+  @escape-tilde 1  2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  w    l    y    p    k    z    j    o    u    ;    [    ]    \
+  @caps-a c  r    s    t    b    f    n    e    i    a    '    ret
+  lsft x    v    d    g    q    m    h    /    ,    .    rsft
+  lctl lmet lalt           spc            ralt ralt rctl
+)
+
 ;; Caps Utility Layer while QWERTY is the base layout.
 (deflayer vim-qwerty
   grv  @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    A-f4 C-w    end  C-r  C-t  _    @pageup-diaeresis-q tab _ _ esc _ _
-  _    home @screenshot-clipboard pgdn C-f esc left down up rght bspc @acute-q ret
-  _    C-z  C-x    C-c  C-v  _    @enye-q ret _ _ @slash-delete-question caps
-  _    _    _              @to-colemak    _    _    _
+  _    A-f4 C-w    end  C-r  C-t  _    pgup tab del @accent-q esc _ _
+  _    home @screenshot-clipboard pgdn C-f esc left down up rght @backspace-delete _ ret
+  _    C-z  C-x    C-c  C-v  _    @enye-q ret _ _ @question-marks caps
+  _    _    _              @next-qwerty    _    _    _
 )
 
-;; Caps Utility Layer while Colemak-DH is the base layout. Navigation remains on the
-;; same physical QWERTY positions; only Space switches back to QWERTY.
+;; Caps Utility Layer while Colemak-DH is the base layout. Navigation remains on
+;; the same physical QWERTY positions.
 (deflayer vim-colemak
   grv  @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
-  _    A-f4 C-w    end  C-r  C-t  _    @pageup-diaeresis-c tab _ _ esc _ _
-  _    home @screenshot-clipboard pgdn C-f esc left down up rght bspc @acute-c ret
-  _    C-z  C-x    C-c  C-v  _    @enye-c ret _ _ @slash-delete-question caps
-  _    _    _              @to-qwerty     _    _    _
+  _    A-f4 C-w    end  C-r  C-t  _    pgup tab del @accent-c esc _ _
+  _    home @screenshot-clipboard pgdn C-f esc left down up rght @backspace-delete _ ret
+  _    C-z  C-x    C-c  C-v  _    @enye-c ret _ _ @question-marks caps
+  _    _    _              @next-colemak   _    _    _
+)
+
+;; Caps Utility Layer while Canaria is the base layout.
+(deflayer vim-canaria
+  grv  @f1-inverted-exclamation f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 C-bspc
+  _    A-f4 C-w    end  C-r  C-t  _    pgup tab del @accent-a esc _ _
+  _    home @screenshot-clipboard pgdn C-f esc left down up rght @backspace-delete _ ret
+  _    C-z  C-x    C-c  C-v  _    @enye-a ret _ _ @question-marks caps
+  _    _    _              @next-canaria   _    _    _
 )
 
 ;; One-shot accent layers follow the active typing layout. Unmapped keys are
@@ -119,6 +150,14 @@
   _ _ _ _ _ _ _
 )
 
+(deflayer acute-canaria
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ @o-acute @u-acute _ _ _ _
+  _ _ _ _ _ _ _ _ @e-acute @i-acute @a-acute _ _
+  _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _
+)
+
 (deflayer diaeresis-qwerty
   _ _ _ _ _ _ _ _ _ _ _ _ _ _
   _ _ _ _ _ _ _ @u-diaeresis _ _ _ _ _ _
@@ -135,6 +174,14 @@
   _ _ _ _ _ _ _
 )
 
+(deflayer diaeresis-canaria
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ @u-diaeresis _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _
+)
+
 (deflayer tilde-qwerty
   _ _ _ _ _ _ _ _ _ _ _ _ _ _
   _ _ _ _ _ _ _ _ _ _ _ _ _ _
@@ -144,6 +191,14 @@
 )
 
 (deflayer tilde-colemak
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ @enye _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _
+)
+
+(deflayer tilde-canaria
   _ _ _ _ _ _ _ _ _ _ _ _ _ _
   _ _ _ _ _ _ _ _ _ _ _ _ _ _
   _ _ _ _ _ _ _ @enye _ _ _ _ _

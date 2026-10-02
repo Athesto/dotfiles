@@ -6,7 +6,7 @@
 layout:
   qmk_keyboard: dztech/dz60rgb_ansi/v2
   layout_name: LAYOUT_60_ansi
-  version: "30.1"
+  version: "32.0"
 
 layers:
   BASE_ABC:
@@ -21,6 +21,13 @@ layers:
     - [Tab, Q, W, F, P, B, J, L, U, Y, ";", "[", "]", "\\"]
     - [{t: CAPS_UTILITY}, A, R, S, T, G, M, N, E, I, O, "'", Enter]
     - [Shift, X, C, D, V, Z, K, H, {t: ",", s: "<"}, {t: ".", s: ">"}, {t: "/", s: "?"}, Shift]
+    - [Ctrl, Opt, Cmd, Space, Cmd, Opt, Menu, Ctrl]
+
+  BASE_CANARIA:
+    - [{t: Esc, s: "~"}, "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", BSpace]
+    - [Tab, W, L, Y, P, K, Z, J, O, U, {t: ";", s: ":"}, "[", "]", "\\"]
+    - [{t: CAPS_UTILITY}, C, R, S, T, B, F, N, E, I, A, "'", Enter]
+    - [Shift, X, V, D, G, Q, M, H, {t: "/", s: "?"}, {t: ",", s: "<"}, {t: ".", s: ">"}, Shift]
     - [Ctrl, Opt, Cmd, Space, Cmd, Opt, Menu, Ctrl]
 
   CAPS_UTILITY_ABC:
@@ -74,7 +81,7 @@ layers:
         {type: trans},
         {type: trans},
         {type: trans},
-        "Base Next",
+        "⇧ Base Next",
         {type: trans},
         {type: trans},
         {type: trans},
