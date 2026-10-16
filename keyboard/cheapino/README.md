@@ -1,9 +1,21 @@
 # Cheapino / Vial
 
+## Host variants
+
+| File | Host keyboard layout | International characters |
+| --- | --- | --- |
+| `cheapino-base-us.vil` | English US | Not provided by the host layout |
+| `cheapino-base-cmk.vil` | Standard Colemak | Colemak AltGr layer |
+| `cheapino-lat.vil` | Latin American Spanish | Native Spanish layout |
+
+Generate the English US variant with `node generate-base-us.js`. It preserves
+the current layers 2–6 and changes only the two base layouts plus the
+Colemak-specific Spanish helpers.
+
 `cheapino-lat.vil` is the Latin American Spanish host version for Windows.
 Select **Español (Latinoamérica)** in Windows before loading it. Both physical
 QWERTY and Colemak-DH remain available via the encoder, with the current
-thumb layers and no modifier combos. Version **0.2.0** is stored exclusively
+thumb layers and physical Shift combos. Version **0.2.1** is stored exclusively
 in `metadata.version`; top-level `version: 1` is Vial's format version.
 
 Utils + physical P sends the acute dead key: release Utils, then type the
@@ -14,7 +26,7 @@ The Mac buttons swap modifiers only; they do not adapt this file to a macOS
 input source. `cheapino-base-cmk.vil` is unchanged.
 
 Vial omits custom metadata on export. Save your latest LAT export over
-`cheapino-lat.vil` and run `node version-lat.js cheapino-lat.vil 0.2.0`
+`cheapino-lat.vil` and run `node version-lat.js cheapino-lat.vil 0.2.1`
 to restore metadata without rebuilding your keys. `generate-lat.js` rebuilds
 LAT from the current Colemak file and will replace manual LAT key edits;
 use it only when intentionally resynchronizing the two variants.
@@ -85,6 +97,11 @@ The table above follows the physical left-to-right order. Vial stores the
 three left thumb positions internally in the opposite order: inner, middle,
 outer.
 
+The physical A+S and L+semicolon chords produce left and right Shift on the
+QWERTY base. Vial dynamic combos match keycodes globally rather than physical
+switch positions, so these definitions are not duplicated for Colemak-DH;
+doing that would also make ordinary A+R and I+O chords trigger Shift in QWERTY.
+
 The inner right thumb is experimental dual-role `LT(3, KC_SPACE)`: tap it
 for Space or hold it for the Numbers/Symbols layer. The outer right thumb
 remains a dedicated Space key while the timing is evaluated.
@@ -113,12 +130,13 @@ AltGr + U → ú    AltGr + 1 → ¡
 Add Shift for uppercase characters. United States-International is not
 required by `cheapino-base-cmk.vil`.
 
-For sequential accents, Utility + the physical QWERTY P position is
-`OSM(MOD_RALT)`. Tap and release P, release Utility, then press the desired
-letter on the base layout. Right Alt applies to that next key only (subject
-to the firmware's one-shot timeout). For example, this sequence followed by
-A produces á with the standard Colemak host layout. This replaces the
-Utility-layer quote; quote is still available on the Numbers/Symbols layer.
+For sequential AltGr input, Utility + the physical QWERTY P position is
+`OSM(MOD_RALT)` in both `cheapino-base-cmk.vil` and `cheapino-base-us.vil`.
+Tap and release P, release Utility, then press the desired key on the base
+layout. Right Alt applies to that next key only (subject to the firmware's
+one-shot timeout). On standard Colemak, following it with A produces á.
+On English US it only has an effect when the host layout or application
+defines Right Alt behavior. Quote remains available on Numbers/Symbols.
 
 Utils also provides Spanish characters with the standard Colemak host:
 physical QWERTY `/` sends ¿, Shift + `/` sends ¡, and physical QWERTY N

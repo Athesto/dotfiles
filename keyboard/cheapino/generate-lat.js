@@ -29,6 +29,12 @@ config.layout[2][0][4] = "KC_LBRACKET"; // acute dead key
 config.layout[2][2][0] = "KC_SCOLON"; // ñ, Shift produces Ñ
 config.layout[2][2][4] = "KC_EQUAL"; // ¿, Shift produces ¡
 
+// Keep the physical Shift chords consistent with the LAT keycodes.
+config.combo[0] = ["KC_L", "LSFT(KC_COMMA)", "KC_NO", "KC_NO", "KC_RSHIFT"];
+config.combo[1] = ["KC_A", "KC_S", "KC_NO", "KC_NO", "KC_LSHIFT"];
+config.combo[2] = ["KC_NO", "KC_NO", "KC_NO", "KC_NO", "KC_NO"];
+config.combo[3] = ["KC_NO", "KC_NO", "KC_NO", "KC_NO", "KC_NO"];
+
 // Remove the old Colemak-specific punctuation overrides only.
 config.key_override = config.key_override.map(function (entry) {
   var old = entry.layers === 4 && ["KC_SLASH", "RALT(KC_SLASH)"].includes(entry.trigger)
@@ -59,9 +65,10 @@ shifted.forEach(function (rule) {
     trigger_mods:34, negative_mod_mask:0, suppressed_mods:34, options:7};
 });
 config.metadata = Object.assign({}, previous.metadata, {
-  name:"Cheapino LAT", version:"0.2.0", host_layout:"Español Latinoamérica",
-  platform:"Windows", updated:"2026-10-11",
-  changes:["Updated thumb and modifier layers from current Colemak layout",
+  name:"Cheapino LAT", version:"0.2.1", host_layout:"Español Latinoamérica",
+  platform:"Windows", updated:"2026-10-16",
+  changes:["Synchronized Utility navigation, transparency and Shift combos",
+    "Updated thumb and modifier layers from current Colemak layout",
     "QWERTY/Colemak-DH letters and symbols adapted to Latin American host",
     "Utils P: acute dead key; N: ñ; slash position: ¿ / ¡"]
 });
