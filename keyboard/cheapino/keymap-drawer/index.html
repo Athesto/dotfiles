@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="description" content="A small tool for turning Cheapino Vial layouts into Keymap Drawer diagrams.">
+    <title>Cheapino · Keymap Drawer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.1.1/css/pico.min.css">
+    <script src="app.js" defer></script>
+    <style>
+      :root { --pico-font-size: 17px; }
+      body { min-height: 100vh; display: grid; place-items: center; }
+      main.container { max-width: 760px; padding-block: 3rem; }
+      .eyebrow { color: var(--pico-primary); font-weight: 600; }
+      h1 { font-size: clamp(2.5rem, 8vw, 4rem); }
+      article { margin-top: 2rem; }
+      footer { color: var(--pico-muted-color); }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <p class="eyebrow">Cheapino / Keymap Drawer</p>
+        <h1>Hello, world.</h1>
+        <p>A small home for your keyboard layouts.</p>
+      </header>
+      <article>
+        <h2>From Vial to a diagram</h2>
+        <p>Upload a <code>.vil</code> file, convert your layers, and open them in Keymap Drawer. The converter is coming next.</p>
+        <button id="hello" type="button">Say hello</button>
+        <p id="status" role="status" aria-live="polite">This preview is ready to publish.</p>
+      </article>
+      <footer>
+        <small>Built with Pico CSS and plain JavaScript. <a href="https://caksoylar.github.io/keymap-drawer/">Visit Keymap Drawer ↗</a></small>
+      </footer>
+    </main>
+  </body>
+</html>
