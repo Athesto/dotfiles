@@ -97,10 +97,22 @@ The table above follows the physical left-to-right order. Vial stores the
 three left thumb positions internally in the opposite order: inner, middle,
 outer.
 
-The physical A+S and L+semicolon chords produce left and right Shift on the
-QWERTY base. Vial dynamic combos match keycodes globally rather than physical
-switch positions, so these definitions are not duplicated for Colemak-DH;
-doing that would also make ordinary A+R and I+O chords trigger Shift in QWERTY.
+`cheapino-base-us.vil` currently experiments with QWERTY-only home-row
+modifier combos:
+
+```text
+A+S Shift | Z+X Ctrl | X+C GUI | C+V Alt
+M+, Alt   | ,+. GUI  | .+/ Ctrl | L+; Shift
+```
+
+Only Shift remains on the home row. Ctrl, GUI, and Alt use the bottom row to
+avoid accidental activation while rolling quickly through `asdf`/`jkl;`.
+
+Both Alt combos emit Left Alt, and both GUI combos emit Left GUI, so the
+existing Windows/macOS swap applies consistently. Right Alt remains reserved
+for AltGr. Vial dynamic combos match keycodes globally rather than physical
+switch positions, so Colemak-DH combos are intentionally not installed;
+layer 1 should not be used for evaluating this experiment.
 
 The inner right thumb is experimental dual-role `LT(3, KC_SPACE)`: tap it
 for Space or hold it for the Numbers/Symbols layer. The outer right thumb
