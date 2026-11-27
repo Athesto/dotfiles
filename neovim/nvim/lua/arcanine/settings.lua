@@ -46,4 +46,13 @@ vim.keymap.set(
         desc = "Abrir configuración de Neovim",
     }
 )
-vim.keymap.set("n", "<leader>ki", vim.diagnostic.open_float)
+
+vim.keymap.set(
+    "n",
+    "<leader>ki",
+    vim.diagnostic.open_float,
+    {
+        desc = "Show diagnostic details"
+    }
+)
+

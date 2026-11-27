@@ -31,7 +31,10 @@ return {
                         entry_filter = function(entry)
                             return not entry.completion_item.label:match("^__")
                         end,
-                    }
+                    },
+                    {
+                        name = "codeium",
+                    },
                 },
             })
         end,
